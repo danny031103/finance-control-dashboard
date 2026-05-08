@@ -5,7 +5,7 @@ import { SESSION_COOKIE_NAME } from "./lib/auth";
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  if (pathname.startsWith('/login') || pathname.startsWith('/_next')) {
+  if (pathname.startsWith('/login') || pathname.startsWith('/_next') || pathname.startsWith('/api/auth/')) {
     return NextResponse.next();
   }
 

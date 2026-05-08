@@ -23,7 +23,7 @@ export default function LoginPage() {
     setLoading(false);
 
     if (res.ok) {
-      router.push('/');
+      window.location.href = '/';
     } else {
       setError('Incorrect password');
     }

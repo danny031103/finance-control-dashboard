@@ -232,7 +232,7 @@ function getMemberColor(name: string): string // hash name → index into MEMBER
 
 ---
 
-## Phase 6 — Analytics (`/analytics`)
+## Phase 6 — Analytics (`/analytics`) ✅ COMPLETE
 
 **Goal:** Five charts derived from Trello action history.
 
@@ -280,6 +280,8 @@ function getMemberColor(name: string): string // hash name → index into MEMBER
   - E: `BarChart` — card age distribution (single muted blue)
 
 **Verification:** All 5 charts render with real Trello data. Team Schedules excluded everywhere.
+
+**Verified:** 2026-05-08. typecheck, lint, build all pass. `GET /api/analytics` computes all 5 datasets server-side. Analytics page renders BarChart (completions/week), horizontal BarChart (avg time/column), stacked BarChart (per-person weekly), donut PieChart (active cards by assignee), and BarChart (card age distribution). Custom tooltip and grid styling match spec. Card age uses `dateLastActivity` as proxy since Trello card object has no raw `dateCreated` field.
 
 ---
 

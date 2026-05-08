@@ -133,9 +133,14 @@ export function getCachedBoardData(): { data: BoardData; stale: boolean } | null
   return { data: cache.data, stale: true };
 }
 
+function daysAgoISO(days: number): string {
+  const d = new Date(Date.now() - days * 24 * 60 * 60 * 1000);
+  return d.toISOString();
+}
+
 export async function getCardHistory(cardId: string): Promise<CardAction[]> {
   return trelloFetch<CardAction[]>(
-    `/cards/${cardId}/actions?${qs({ filter: 'updateCard,commentCard', since: '90days' })}`
+    `/cards/${cardId}/actions?${qs({ filter: 'updateCard,commentCard', since: daysAgoISO(90) })}`
   );
 }
 
@@ -144,7 +149,7 @@ export async function getBoardHistory(): Promise<Record<string, CardAction[]>> {
   const actions = await trelloFetch<CardAction[]>(
     `/boards/${boardId}/actions?${qs({
       filter: 'updateCard,commentCard',
-      since: '90days',
+      since: daysAgoISO(90),
       limit: '1000',
     })}`
   );
