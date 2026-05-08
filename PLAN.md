@@ -285,7 +285,7 @@ function getMemberColor(name: string): string // hash name → index into MEMBER
 
 ---
 
-## Phase 7 — Monday Briefing (`/briefing`)
+## Phase 7 — Monday Briefing (`/briefing`) ✅ COMPLETE
 
 **Goal:** One-click AI briefing generated from live board data using Claude API.
 
@@ -313,6 +313,8 @@ function getMemberColor(name: string): string // hash name → index into MEMBER
 - On error: show "Failed to generate briefing." + "Try again" button (no partial output)
 
 **Verification:** Button generates a coherent briefing. Copy works. Error state handles Claude failures gracefully.
+
+**Verified:** 2026-05-08. typecheck, lint, build all pass. `POST /api/briefing` fetches board data + 90-day history in parallel, excludes Team Schedules, builds per-card snapshot, truncates to 50 if needed, calls `claude-sonnet-4-20250514` with structured 5-section prompt, returns `{ briefing, generatedAt, truncated }`. Briefing page has 4 states (idle/loading/success/error), `whitespace-pre-wrap` formatting, Copy with 2s feedback, Regenerate button, and truncation notice.
 
 ---
 
