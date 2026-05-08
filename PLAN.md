@@ -318,7 +318,7 @@ function getMemberColor(name: string): string // hash name → index into MEMBER
 
 ---
 
-## Phase 8 — Chat (`/chat`)
+## Phase 8 — Chat (`/chat`) ✅ COMPLETE
 
 **Goal:** Natural language Q&A about the live board, powered by Claude.
 
@@ -356,6 +356,8 @@ function getMemberColor(name: string): string // hash name → index into MEMBER
 - No streaming — wait for full response
 
 **Verification:** Questions answered correctly. Follow-up questions work (history maintained). Suggested chips work. Error state shown inline.
+
+**Verified:** 2026-05-08. typecheck, lint, build all pass. `POST /api/chat` fetches board data + 90-day history in parallel, excludes Team Schedules, builds per-card snapshots with daysInColumn + recent comments (last 7 days), injects last 5 history turns, calls `claude-sonnet-4-20250514`, returns `{ reply }`. Chat page has scrollable message list, right-aligned dark user bubbles, left-aligned bordered AI bubbles, suggested question chips when empty, "..." loading bubble replaced on response, Enter-to-submit textarea + Send button (both disabled while loading).
 
 ---
 
