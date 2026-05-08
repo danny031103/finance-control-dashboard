@@ -4,7 +4,7 @@ Each phase is a self-contained unit designed to be handed off to a separate agen
 
 ---
 
-## Phase 1 — Project Scaffolding
+## Phase 1 — Project Scaffolding ✅ COMPLETE
 
 **Goal:** Create a working Next.js app with all dependencies installed and the correct folder structure in place. Nothing functional yet — just the skeleton.
 
@@ -42,9 +42,11 @@ Each phase is a self-contained unit designed to be handed off to a separate agen
 
 **Output:** A running Next.js skeleton at localhost:3000 with no errors.
 
+**Verified:** 2026-05-08. typecheck, lint pass. All deps installed. Folder structure matches spec. Auth routes (Phase 2) were also scaffolded.
+
 ---
 
-## Phase 2 — Auth (Middleware + Login Page)
+## Phase 2 — Auth (Middleware + Login Page) ✅ COMPLETE
 
 **Goal:** Protect all routes behind a shared password. Unauthenticated requests redirect to `/login`.
 
@@ -72,9 +74,11 @@ Each phase is a self-contained unit designed to be handed off to a separate agen
 
 **Verification:** Visiting `/` without a cookie redirects to `/login`. Correct password grants access for 30 days. Wrong password shows error.
 
+**Verified:** 2026-05-08. typecheck and lint pass. Middleware redirects unauthenticated requests. Login page matches design spec. Cookie set HttpOnly for 30 days. Logout clears cookie and redirects.
+
 ---
 
-## Phase 3 — Shared Trello Utility (`lib/trello.ts`)
+## Phase 3 — Shared Trello Utility (`lib/trello.ts`) ✅ COMPLETE
 
 **Goal:** Build the single server-side data layer that all pages will use. This is the most critical shared component.
 
@@ -139,6 +143,8 @@ Each phase is a self-contained unit designed to be handed off to a separate agen
    - Returns days since that move (or days since card creation if never moved)
 
 **Verification:** Write a quick test script or verify via the API routes in later phases. Functions must throw typed errors, never crash silently.
+
+**Verified:** 2026-05-08. typecheck and lint pass. All types, functions, in-memory cache, and `computeDaysInColumn` helper implemented. `getBoardData` returns stale cache on failure via tagged `STALE_CACHE` error. `getCachedBoardData()` added as a companion for callers that need the stale value without re-throwing.
 
 ---
 
