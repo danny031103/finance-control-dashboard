@@ -148,7 +148,7 @@ Each phase is a self-contained unit designed to be handed off to a separate agen
 
 ---
 
-## Phase 4 — Layout & Navigation Shell
+## Phase 4 — Layout & Navigation Shell ✅ COMPLETE
 
 **Goal:** Build the persistent sidebar layout that wraps all protected pages. No data yet — just structure and navigation.
 
@@ -167,9 +167,11 @@ Each phase is a self-contained unit designed to be handed off to a separate agen
 
 **Verification:** All four nav links work, active state updates correctly, sidebar stays fixed during scroll.
 
+**Verified:** 2026-05-08. typecheck and lint pass. `SidebarNav` client component uses `usePathname` for active highlighting. Layout uses flexbox row with fixed 220px dark sidebar (`#111111`, `1px #e5e5e5` right border) and scrollable `#fafafa` main area. Sign out posts to `/api/auth/logout`. All four placeholder pages render correctly under the layout.
+
 ---
 
-## Phase 5 — Board View (`/`)
+## Phase 5 — Board View (`/`) ✅ COMPLETE
 
 **Goal:** The kanban board — the core page. Renders live Trello data, supports drag-and-drop, card side panel, comments, and card creation.
 
@@ -225,6 +227,8 @@ function getMemberColor(name: string): string // hash name → index into MEMBER
 ```
 
 **Verification:** Board loads, cards render with correct staleness colors, drag-and-drop updates Trello, card creation works, side panel shows comments.
+
+**Verified:** 2026-05-08. typecheck and lint pass. Production build clean. All API routes implemented (`GET /api/board`, `PATCH /api/card/[id]`, `POST /api/card/[id]/comment`, `GET /api/card/[id]/history`, `POST /api/card`). Board page (`app/(protected)/page.tsx`) is a full client component with `@hello-pangea/dnd` drag-and-drop, 60s polling, stale cache banner, card side panel (`CardSidePanel.tsx`), add card form (`AddCardForm.tsx`), and `KanbanCard.tsx` with staleness left border, assignee avatar, due date, label dots, and checklist progress. `lib/utils.ts` exports `getMemberColor`, `getInitials`, `stalenessColor`, `labelHexColor`. Board API route computes `daysInColumn` server-side via `getBoardHistory()`. Team Schedules column rendered with `#f5f5f0` background.
 
 ---
 
