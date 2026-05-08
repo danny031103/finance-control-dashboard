@@ -49,31 +49,43 @@ export default function AddCardForm({ listId, members, onCancel, onAdd }: Props)
 
   const inputStyle: React.CSSProperties = {
     width: '100%',
-    padding: '6px 8px',
+    padding: '7px 9px',
     fontSize: '13px',
     border: '1px solid #e5e5e5',
-    borderRadius: '4px',
+    borderRadius: '6px',
     fontFamily: 'inherit',
     outline: 'none',
     background: '#fff',
     boxSizing: 'border-box',
+    color: '#111111',
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ padding: '8px', borderTop: '1px solid #e5e5e5' }}>
+    <form
+      onSubmit={handleSubmit}
+      style={{
+        padding: '10px',
+        borderTop: '1px solid #f0f0f0',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '6px',
+      }}
+    >
       <textarea
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        placeholder="Card title..."
+        placeholder="Card title…"
         rows={2}
         style={{ ...inputStyle, resize: 'none' }}
         autoFocus
+        onFocus={(e) => (e.currentTarget.style.borderColor = '#2563eb')}
+        onBlur={(e) => (e.currentTarget.style.borderColor = '#e5e5e5')}
       />
 
       <select
         value={assigneeId}
         onChange={(e) => setAssigneeId(e.target.value)}
-        style={{ ...inputStyle, marginTop: '5px' }}
+        style={{ ...inputStyle, cursor: 'pointer' }}
       >
         <option value="">Unassigned</option>
         {members.map((m) => (
@@ -85,26 +97,30 @@ export default function AddCardForm({ listId, members, onCancel, onAdd }: Props)
         type="date"
         value={due}
         onChange={(e) => setDue(e.target.value)}
-        style={{ ...inputStyle, marginTop: '5px' }}
+        style={inputStyle}
+        onFocus={(e) => (e.currentTarget.style.borderColor = '#2563eb')}
+        onBlur={(e) => (e.currentTarget.style.borderColor = '#e5e5e5')}
       />
 
       {error && (
-        <p style={{ fontSize: '12px', color: '#dc2626', marginTop: '4px' }}>{error}</p>
+        <p style={{ fontSize: '12px', color: '#dc2626', margin: 0 }}>{error}</p>
       )}
 
-      <div style={{ display: 'flex', gap: '6px', marginTop: '8px' }}>
+      <div style={{ display: 'flex', gap: '6px', marginTop: '2px' }}>
         <button
           type="submit"
           disabled={submitting}
           style={{
-            padding: '5px 12px',
+            padding: '6px 14px',
             fontSize: '13px',
             background: '#2563eb',
             color: '#ffffff',
             border: 'none',
-            borderRadius: '4px',
+            borderRadius: '6px',
             cursor: submitting ? 'not-allowed' : 'pointer',
             opacity: submitting ? 0.7 : 1,
+            fontFamily: 'inherit',
+            fontWeight: 500,
           }}
         >
           {submitting ? 'Adding…' : 'Add'}
@@ -113,13 +129,14 @@ export default function AddCardForm({ listId, members, onCancel, onAdd }: Props)
           type="button"
           onClick={onCancel}
           style={{
-            padding: '5px 12px',
+            padding: '6px 12px',
             fontSize: '13px',
             background: 'transparent',
-            color: '#666666',
+            color: '#888888',
             border: '1px solid #e5e5e5',
-            borderRadius: '4px',
+            borderRadius: '6px',
             cursor: 'pointer',
+            fontFamily: 'inherit',
           }}
         >
           Cancel

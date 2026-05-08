@@ -75,7 +75,6 @@ export default function BoardPage() {
       const newListId = destination.droppableId;
       const oldListId = source.droppableId;
 
-      // Optimistic update
       setData((prev) =>
         prev
           ? { ...prev, cards: prev.cards.map((c) => (c.id === cardId ? { ...c, idList: newListId } : c)) }
@@ -90,7 +89,6 @@ export default function BoardPage() {
         });
         if (!res.ok) throw new Error();
       } catch {
-        // Revert
         setData((prev) =>
           prev
             ? { ...prev, cards: prev.cards.map((c) => (c.id === cardId ? { ...c, idList: oldListId } : c)) }
@@ -116,7 +114,7 @@ export default function BoardPage() {
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '50vh', color: '#999999', fontSize: '14px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh', color: '#999999', fontSize: '13px' }}>
         Loading board…
       </div>
     );
@@ -124,11 +122,20 @@ export default function BoardPage() {
 
   if (fatalError && !data) {
     return (
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '50vh', gap: '12px' }}>
+      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '60vh', gap: '14px' }}>
         <p style={{ color: '#666666', fontSize: '14px' }}>{fatalError}</p>
         <button
           onClick={handleRetry}
-          style={{ padding: '6px 14px', fontSize: '13px', background: '#2563eb', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}
+          style={{
+            padding: '7px 16px',
+            fontSize: '13px',
+            background: '#2563eb',
+            color: '#fff',
+            border: 'none',
+            borderRadius: '6px',
+            cursor: 'pointer',
+            fontFamily: 'inherit',
+          }}
         >
           Retry
         </button>
@@ -139,45 +146,88 @@ export default function BoardPage() {
   if (!data) return null;
 
   const selectedCard = selectedCardId ? (data.cards.find((c) => c.id === selectedCardId) ?? null) : null;
+  const totalCards = data.cards.length;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', minHeight: 0 }}>
-      {/* Stale banner */}
-      {data.stale && !staleBannerDismissed && (
-        <div
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '8px 14px',
-            marginBottom: '16px',
-            background: '#fef9c3',
-            border: '1px solid #fde68a',
-            borderRadius: '6px',
-            flexShrink: 0,
-          }}
-        >
-          <span style={{ fontSize: '13px', color: '#92400e' }}>
-            Unable to reach Trello — showing last cached data
-          </span>
-          <button
-            onClick={() => setStaleBannerDismissed(true)}
-            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#92400e', fontSize: '18px', lineHeight: 1, padding: '0 4px' }}
-          >
-            ×
-          </button>
-        </div>
-      )}
+    <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
 
-      {/* Board */}
+      {/* Page header */}
+      <div
+        style={{
+          padding: '28px 32px 0',
+          flexShrink: 0,
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', paddingBottom: '16px', borderBottom: '2px solid #111111' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <h1 style={{ fontSize: '26px', fontWeight: 700, color: '#111111', margin: 0, fontFamily: 'var(--font-space-grotesk)', letterSpacing: '-0.02em' }}>
+              Board
+            </h1>
+            {/* Live indicator */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+              <div
+                style={{
+                  width: '7px',
+                  height: '7px',
+                  borderRadius: '50%',
+                  background: '#16a34a',
+                  flexShrink: 0,
+                }}
+              />
+              <span style={{ fontSize: '12px', color: '#999999' }}>Live</span>
+            </div>
+          </div>
+          <span style={{ fontSize: '12px', color: '#bbbbbb' }}>
+            {totalCards} card{totalCards !== 1 ? 's' : ''}
+          </span>
+        </div>
+
+        {/* Stale banner */}
+        {data.stale && !staleBannerDismissed && (
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '9px 14px',
+              marginBottom: '16px',
+              background: '#fffbeb',
+              border: '1px solid #fde68a',
+              borderRadius: '7px',
+            }}
+          >
+            <span style={{ fontSize: '13px', color: '#92400e' }}>
+              Unable to reach Trello — showing last cached data
+            </span>
+            <button
+              onClick={() => setStaleBannerDismissed(true)}
+              style={{
+                background: 'none',
+                border: 'none',
+                cursor: 'pointer',
+                color: '#b45309',
+                fontSize: '16px',
+                lineHeight: 1,
+                padding: '0 4px',
+                fontFamily: 'inherit',
+              }}
+            >
+              ×
+            </button>
+          </div>
+        )}
+      </div>
+
+      {/* Board scroll area */}
       <DragDropContext onDragEnd={onDragEnd}>
         <div
           style={{
             display: 'flex',
-            gap: '10px',
+            gap: '12px',
             overflowX: 'auto',
             alignItems: 'flex-start',
-            paddingBottom: '16px',
+            padding: '16px 32px 32px',
+            flex: 1,
           }}
         >
           {data.lists.map((list) => {
@@ -190,33 +240,47 @@ export default function BoardPage() {
               <div
                 key={list.id}
                 style={{
-                  width: '272px',
+                  width: '278px',
                   flexShrink: 0,
-                  background: isTeamSchedules ? '#f5f5f0' : '#f0f0ef',
-                  borderRadius: '6px',
+                  background: isTeamSchedules ? '#f7f7f5' : '#ffffff',
+                  borderRadius: '8px',
+                  border: '1px solid #e8e8e8',
+                  boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
                   display: 'flex',
                   flexDirection: 'column',
+                  opacity: isTeamSchedules ? 0.85 : 1,
                 }}
               >
                 {/* Column header */}
                 <div
                   style={{
-                    padding: '10px 12px 8px',
+                    padding: '12px 14px 10px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'space-between',
+                    borderBottom: '1px solid #f0f0f0',
                     flexShrink: 0,
                   }}
                 >
-                  <span style={{ fontSize: '13px', fontWeight: 500, color: '#111111' }}>{list.name}</span>
+                  <span
+                    style={{
+                      fontSize: '13px',
+                      fontWeight: 500,
+                      color: isTeamSchedules ? '#999999' : '#111111',
+                      letterSpacing: '-0.01em',
+                    }}
+                  >
+                    {list.name}
+                  </span>
                   <span
                     style={{
                       fontSize: '11px',
                       fontWeight: 600,
-                      color: '#777777',
-                      background: '#e5e5e5',
+                      color: '#aaaaaa',
+                      background: '#f4f4f4',
                       borderRadius: '10px',
-                      padding: '1px 7px',
+                      padding: '2px 7px',
+                      lineHeight: '1.4',
                     }}
                   >
                     {cards.length}
@@ -225,15 +289,18 @@ export default function BoardPage() {
 
                 {/* Cards drop zone */}
                 <Droppable droppableId={list.id}>
-                  {(provided) => (
+                  {(provided, snapshot) => (
                     <div
                       ref={provided.innerRef}
                       {...provided.droppableProps}
                       style={{
-                        padding: '0 8px',
-                        minHeight: '40px',
-                        maxHeight: 'calc(100vh - 220px)',
+                        padding: '8px',
+                        minHeight: '48px',
+                        maxHeight: 'calc(100vh - 240px)',
                         overflowY: 'auto',
+                        background: snapshot.isDraggingOver ? 'rgba(37,99,235,0.02)' : 'transparent',
+                        transition: 'background 0.15s ease',
+                        borderRadius: '0 0 4px 4px',
                       }}
                     >
                       {cards.map((card, index) => (
@@ -259,23 +326,28 @@ export default function BoardPage() {
                     onAdd={handleCardAdded}
                   />
                 ) : (
-                  <button
-                    onClick={() => setAddingToList(list.id)}
-                    style={{
-                      textAlign: 'left',
-                      padding: '8px 12px',
-                      fontSize: '13px',
-                      color: '#999999',
-                      background: 'none',
-                      border: 'none',
-                      cursor: 'pointer',
-                      flexShrink: 0,
-                    }}
-                    onMouseEnter={(e) => (e.currentTarget.style.color = '#555555')}
-                    onMouseLeave={(e) => (e.currentTarget.style.color = '#999999')}
-                  >
-                    + Add card
-                  </button>
+                  !isTeamSchedules && (
+                    <button
+                      onClick={() => setAddingToList(list.id)}
+                      style={{
+                        textAlign: 'left',
+                        padding: '8px 14px 10px',
+                        fontSize: '13px',
+                        color: '#c0c0c0',
+                        background: 'none',
+                        border: 'none',
+                        cursor: 'pointer',
+                        flexShrink: 0,
+                        fontFamily: 'inherit',
+                        borderTop: '1px solid #f4f4f4',
+                        transition: 'color 0.1s ease',
+                      }}
+                      onMouseEnter={(e) => (e.currentTarget.style.color = '#666666')}
+                      onMouseLeave={(e) => (e.currentTarget.style.color = '#c0c0c0')}
+                    >
+                      + Add card
+                    </button>
+                  )
                 )}
               </div>
             );

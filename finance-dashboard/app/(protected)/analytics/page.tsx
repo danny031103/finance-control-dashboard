@@ -30,9 +30,10 @@ const tooltipStyle: React.CSSProperties = {
   background: '#fff',
   border: '1px solid #e5e5e5',
   borderRadius: '6px',
-  boxShadow: 'none',
+  boxShadow: '0 4px 12px rgba(0,0,0,0.06)',
   fontSize: '12px',
   color: '#111111',
+  padding: '8px 12px',
 };
 
 function CustomTooltip({
@@ -46,34 +47,55 @@ function CustomTooltip({
 }) {
   if (!active || !payload?.length) return null;
   return (
-    <div style={tooltipStyle} className="px-3 py-2">
-      {label && <p className="mb-1 font-medium text-xs text-gray-600">{label}</p>}
+    <div style={tooltipStyle}>
+      {label && <p style={{ marginBottom: '4px', fontWeight: 500, fontSize: '11px', color: '#888888' }}>{label}</p>}
       {payload.map((entry) => (
-        <p key={entry.name} className="text-xs" style={{ color: entry.color ?? '#111111' }}>
-          {entry.name}: <span className="font-medium">{entry.value}</span>
+        <p key={entry.name} style={{ fontSize: '12px', color: entry.color ?? '#111111', margin: '2px 0' }}>
+          {entry.name}: <span style={{ fontWeight: 600 }}>{entry.value}</span>
         </p>
       ))}
     </div>
   );
 }
 
-function SectionLabel({ children }: { children: React.ReactNode }) {
+function ChartCard({ title, children, fullWidth = false }: { title: string; children: React.ReactNode; fullWidth?: boolean }) {
   return (
-    <p
-      className="mb-3 uppercase tracking-widest"
-      style={{ fontSize: '11px', color: '#999999', fontWeight: 500 }}
+    <div
+      style={{
+        background: '#ffffff',
+        border: '1px solid #ebebeb',
+        borderRadius: '8px',
+        overflow: 'hidden',
+        gridColumn: fullWidth ? '1 / -1' : undefined,
+      }}
     >
-      {children}
-    </p>
-  );
-}
-
-function ChartSection({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <section className="mb-10">
-      <SectionLabel>{title}</SectionLabel>
-      {children}
-    </section>
+      <div
+        style={{
+          padding: '14px 20px 12px',
+          borderBottom: '2px solid #f0f0f0',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '8px',
+        }}
+      >
+        <div style={{ width: '3px', height: '16px', borderRadius: '2px', background: '#2563eb', flexShrink: 0 }} />
+        <p
+          style={{
+            fontSize: '13px',
+            fontWeight: 700,
+            color: '#111111',
+            margin: 0,
+            fontFamily: 'var(--font-space-grotesk)',
+            letterSpacing: '-0.01em',
+          }}
+        >
+          {title}
+        </p>
+      </div>
+      <div style={{ padding: '18px 20px 16px' }}>
+        {children}
+      </div>
+    </div>
   );
 }
 
@@ -95,7 +117,7 @@ export default function AnalyticsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64" style={{ color: '#999999', fontSize: '14px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh', color: '#999999', fontSize: '13px' }}>
         Loading analytics…
       </div>
     );
@@ -103,112 +125,130 @@ export default function AnalyticsPage() {
 
   if (error || !data) {
     return (
-      <div className="flex items-center justify-center h-64" style={{ color: '#dc2626', fontSize: '14px' }}>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '60vh', color: '#dc2626', fontSize: '13px' }}>
         Failed to load analytics.
       </div>
     );
   }
 
-  const axisStyle = { fill: '#999999', fontSize: 12 };
+  const axisStyle = { fill: '#bbbbbb', fontSize: 11 };
+
+  const ageColors = ['#059669', '#0891b2', '#d97706', '#dc2626', '#7c3aed'];
 
   return (
-    <div style={{ maxWidth: '860px' }}>
-      <h1 className="mb-8" style={{ fontSize: '18px', fontWeight: 600, color: '#111111' }}>
-        Analytics
-      </h1>
+    <div style={{ padding: '28px 32px 40px', maxWidth: '960px' }}>
+      {/* Header */}
+      <div style={{ marginBottom: '28px', paddingBottom: '20px', borderBottom: '2px solid #111111' }}>
+        <h1 style={{ fontSize: '26px', fontWeight: 700, color: '#111111', margin: '0 0 4px 0', fontFamily: 'var(--font-space-grotesk)', letterSpacing: '-0.02em' }}>
+          Analytics
+        </h1>
+        {data.weekCount < 8 && (
+          <p style={{ fontSize: '12px', color: '#aaaaaa', margin: 0 }}>
+            Showing {data.weekCount} week{data.weekCount !== 1 ? 's' : ''} of available data
+          </p>
+        )}
+      </div>
 
-      {data.weekCount < 8 && (
-        <p className="mb-6 text-xs" style={{ color: '#999999' }}>
-          Showing {data.weekCount} weeks of available data
-        </p>
-      )}
+      {/* Charts grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
 
-      <ChartSection title="Cards Completed per Week">
-        <ResponsiveContainer width="100%" height={240}>
-          <BarChart data={data.cardsCompletedPerWeek} barSize={28}>
-            <CartesianGrid vertical={false} stroke="#f0f0f0" />
-            <XAxis dataKey="week" tick={axisStyle} axisLine={false} tickLine={false} />
-            <YAxis tick={axisStyle} axisLine={false} tickLine={false} allowDecimals={false} />
-            <Tooltip content={<CustomTooltip />} cursor={{ fill: '#f5f5f5' }} />
-            <Bar dataKey="count" name="Cards" fill="#2563eb" radius={[3, 3, 0, 0]} />
-          </BarChart>
-        </ResponsiveContainer>
-      </ChartSection>
+        {/* Cards completed per week — full width */}
+        <ChartCard title="Cards Completed per Week" fullWidth>
+          <ResponsiveContainer width="100%" height={220}>
+            <BarChart data={data.cardsCompletedPerWeek} barSize={28}>
+              <CartesianGrid vertical={false} stroke="#f4f4f4" />
+              <XAxis dataKey="week" tick={axisStyle} axisLine={false} tickLine={false} />
+              <YAxis tick={axisStyle} axisLine={false} tickLine={false} allowDecimals={false} />
+              <Tooltip content={<CustomTooltip />} cursor={{ fill: '#f8f8f8' }} />
+              <Bar dataKey="count" name="Cards" fill="#2563eb" radius={[3, 3, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartCard>
 
-      <ChartSection title="Average Days per Column">
-        <ResponsiveContainer width="100%" height={Math.max(200, data.avgTimePerColumn.length * 36)}>
-          <BarChart data={data.avgTimePerColumn} layout="vertical" barSize={18}>
-            <CartesianGrid horizontal={false} stroke="#f0f0f0" />
-            <XAxis type="number" tick={axisStyle} axisLine={false} tickLine={false} />
-            <YAxis
-              type="category"
-              dataKey="list"
-              tick={axisStyle}
-              axisLine={false}
-              tickLine={false}
-              width={120}
-            />
-            <Tooltip content={<CustomTooltip />} cursor={{ fill: '#f5f5f5' }} />
-            <Bar dataKey="avgDays" name="Avg Days" fill="#2563eb" radius={[0, 3, 3, 0]} />
-          </BarChart>
-        </ResponsiveContainer>
-      </ChartSection>
+        {/* Active cards by assignee */}
+        <ChartCard title="Active Cards by Assignee">
+          <ResponsiveContainer width="100%" height={240}>
+            <PieChart>
+              <Pie
+                data={data.activeCardsByAssignee}
+                dataKey="count"
+                nameKey="name"
+                cx="50%"
+                cy="50%"
+                innerRadius={60}
+                outerRadius={95}
+                paddingAngle={2}
+              >
+                {data.activeCardsByAssignee.map((entry) => (
+                  <Cell key={entry.name} fill={entry.color} />
+                ))}
+              </Pie>
+              <Tooltip content={<CustomTooltip />} />
+              <Legend wrapperStyle={{ fontSize: '11px', color: '#888888' }} />
+            </PieChart>
+          </ResponsiveContainer>
+        </ChartCard>
 
-      <ChartSection title="Completions per Person per Week">
-        <ResponsiveContainer width="100%" height={260}>
-          <BarChart data={data.cardsPerPersonPerWeek} barSize={20}>
-            <CartesianGrid vertical={false} stroke="#f0f0f0" />
-            <XAxis dataKey="week" tick={axisStyle} axisLine={false} tickLine={false} />
-            <YAxis tick={axisStyle} axisLine={false} tickLine={false} allowDecimals={false} />
-            <Tooltip content={<CustomTooltip />} cursor={{ fill: '#f5f5f5' }} />
-            <Legend wrapperStyle={{ fontSize: '12px', color: '#666666' }} />
-            {data.members.map((member) => (
-              <Bar
-                key={member}
-                dataKey={member}
-                stackId="a"
-                fill={getMemberColor(member)}
-                radius={[0, 0, 0, 0]}
-              />
-            ))}
-          </BarChart>
-        </ResponsiveContainer>
-      </ChartSection>
+        {/* Card age distribution */}
+        <ChartCard title="Card Age Distribution">
+          <ResponsiveContainer width="100%" height={240}>
+            <BarChart data={data.cardAgeDistribution} barSize={32}>
+              <CartesianGrid vertical={false} stroke="#f4f4f4" />
+              <XAxis dataKey="bucket" tick={axisStyle} axisLine={false} tickLine={false} />
+              <YAxis tick={axisStyle} axisLine={false} tickLine={false} allowDecimals={false} />
+              <Tooltip content={<CustomTooltip />} cursor={{ fill: '#f8f8f8' }} />
+              <Bar dataKey="count" name="Cards" radius={[3, 3, 0, 0]}>
+                {data.cardAgeDistribution.map((entry, index) => (
+                  <Cell key={entry.bucket} fill={ageColors[index % ageColors.length]} />
+                ))}
+              </Bar>
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartCard>
 
-      <ChartSection title="Active Cards by Assignee">
-        <ResponsiveContainer width="100%" height={280}>
-          <PieChart>
-            <Pie
-              data={data.activeCardsByAssignee}
-              dataKey="count"
-              nameKey="name"
-              cx="50%"
-              cy="50%"
-              innerRadius={70}
-              outerRadius={110}
-              paddingAngle={2}
-            >
-              {data.activeCardsByAssignee.map((entry) => (
-                <Cell key={entry.name} fill={entry.color} />
+        {/* Completions per person per week — full width */}
+        <ChartCard title="Completions per Person per Week" fullWidth>
+          <ResponsiveContainer width="100%" height={240}>
+            <BarChart data={data.cardsPerPersonPerWeek} barSize={22}>
+              <CartesianGrid vertical={false} stroke="#f4f4f4" />
+              <XAxis dataKey="week" tick={axisStyle} axisLine={false} tickLine={false} />
+              <YAxis tick={axisStyle} axisLine={false} tickLine={false} allowDecimals={false} />
+              <Tooltip content={<CustomTooltip />} cursor={{ fill: '#f8f8f8' }} />
+              <Legend wrapperStyle={{ fontSize: '11px', color: '#888888' }} />
+              {data.members.map((member) => (
+                <Bar
+                  key={member}
+                  dataKey={member}
+                  stackId="a"
+                  fill={getMemberColor(member)}
+                  radius={[0, 0, 0, 0]}
+                />
               ))}
-            </Pie>
-            <Tooltip content={<CustomTooltip />} />
-            <Legend wrapperStyle={{ fontSize: '12px', color: '#666666' }} />
-          </PieChart>
-        </ResponsiveContainer>
-      </ChartSection>
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartCard>
 
-      <ChartSection title="Card Age Distribution">
-        <ResponsiveContainer width="100%" height={220}>
-          <BarChart data={data.cardAgeDistribution} barSize={36}>
-            <CartesianGrid vertical={false} stroke="#f0f0f0" />
-            <XAxis dataKey="bucket" tick={axisStyle} axisLine={false} tickLine={false} />
-            <YAxis tick={axisStyle} axisLine={false} tickLine={false} allowDecimals={false} />
-            <Tooltip content={<CustomTooltip />} cursor={{ fill: '#f5f5f5' }} />
-            <Bar dataKey="count" name="Cards" fill="#93c5fd" radius={[3, 3, 0, 0]} />
-          </BarChart>
-        </ResponsiveContainer>
-      </ChartSection>
+        {/* Average days per column — full width */}
+        <ChartCard title="Average Days per Column" fullWidth>
+          <ResponsiveContainer width="100%" height={Math.max(180, data.avgTimePerColumn.length * 38)}>
+            <BarChart data={data.avgTimePerColumn} layout="vertical" barSize={18}>
+              <CartesianGrid horizontal={false} stroke="#f4f4f4" />
+              <XAxis type="number" tick={axisStyle} axisLine={false} tickLine={false} />
+              <YAxis
+                type="category"
+                dataKey="list"
+                tick={axisStyle}
+                axisLine={false}
+                tickLine={false}
+                width={130}
+              />
+              <Tooltip content={<CustomTooltip />} cursor={{ fill: '#f8f8f8' }} />
+              <Bar dataKey="avgDays" name="Avg Days" fill="#2563eb" radius={[0, 3, 3, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        </ChartCard>
+
+      </div>
     </div>
   );
 }

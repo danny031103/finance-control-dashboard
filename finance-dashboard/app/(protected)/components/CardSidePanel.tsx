@@ -80,7 +80,7 @@ export default function CardSidePanel({ card, members, onClose, onCardUpdate }: 
       if (!res.ok) throw new Error();
       onCardUpdate(card.id, { idMembers: newMembers });
     } catch {
-      // selection will snap back on next render since card.idMembers unchanged
+      // selection snaps back on next render
     }
   };
 
@@ -93,14 +93,14 @@ export default function CardSidePanel({ card, members, onClose, onCardUpdate }: 
   const fmtDateTime = (d: string) =>
     new Date(d).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
 
-  const labelStyle: React.CSSProperties = {
+  const sectionLabel: React.CSSProperties = {
     display: 'block',
-    fontSize: '11px',
-    fontWeight: 500,
-    color: '#999999',
+    fontSize: '10.5px',
+    fontWeight: 600,
+    color: '#aaaaaa',
     textTransform: 'uppercase',
-    letterSpacing: '0.06em',
-    marginBottom: '6px',
+    letterSpacing: '0.07em',
+    marginBottom: '8px',
   };
 
   return (
@@ -108,7 +108,7 @@ export default function CardSidePanel({ card, members, onClose, onCardUpdate }: 
       {/* Backdrop */}
       <div
         onClick={onClose}
-        style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.15)', zIndex: 40 }}
+        style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.18)', zIndex: 40 }}
       />
 
       {/* Panel */}
@@ -118,27 +118,28 @@ export default function CardSidePanel({ card, members, onClose, onCardUpdate }: 
           top: 0,
           right: 0,
           bottom: 0,
-          width: '380px',
+          width: '390px',
           background: '#ffffff',
-          borderLeft: '1px solid #e5e5e5',
+          borderLeft: '1px solid #e8e8e8',
           zIndex: 50,
           display: 'flex',
           flexDirection: 'column',
           overflowY: 'auto',
+          boxShadow: '-4px 0 24px rgba(0,0,0,0.06)',
         }}
       >
         {/* Header */}
         <div
           style={{
-            padding: '16px 20px',
-            borderBottom: '1px solid #e5e5e5',
+            padding: '18px 20px 16px',
+            borderBottom: '1px solid #f0f0f0',
             display: 'flex',
             alignItems: 'flex-start',
             gap: '12px',
             flexShrink: 0,
           }}
         >
-          <h2 style={{ flex: 1, fontSize: '15px', fontWeight: 600, color: '#111111', lineHeight: 1.4 }}>
+          <h2 style={{ flex: 1, fontSize: '15px', fontWeight: 600, color: '#111111', lineHeight: 1.4, margin: 0 }}>
             {card.name}
           </h2>
           <button
@@ -147,23 +148,27 @@ export default function CardSidePanel({ card, members, onClose, onCardUpdate }: 
               background: 'none',
               border: 'none',
               cursor: 'pointer',
-              color: '#999999',
+              color: '#cccccc',
               fontSize: '20px',
               lineHeight: 1,
               padding: '0 2px',
               flexShrink: 0,
+              fontFamily: 'inherit',
+              transition: 'color 0.1s ease',
             }}
+            onMouseEnter={(e) => (e.currentTarget.style.color = '#888888')}
+            onMouseLeave={(e) => (e.currentTarget.style.color = '#cccccc')}
           >
             ×
           </button>
         </div>
 
         {/* Body */}
-        <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: '18px' }}>
+        <div style={{ padding: '18px 20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
           {/* Assignee */}
           <div>
-            <label style={labelStyle}>Assignee</label>
+            <label style={sectionLabel}>Assignee</label>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               {primaryMember && (
                 <div
@@ -189,12 +194,15 @@ export default function CardSidePanel({ card, members, onClose, onCardUpdate }: 
                 onChange={handleAssigneeChange}
                 style={{
                   flex: 1,
-                  padding: '5px 8px',
+                  padding: '6px 9px',
                   fontSize: '13px',
                   border: '1px solid #e5e5e5',
-                  borderRadius: '4px',
+                  borderRadius: '6px',
                   background: '#fff',
                   fontFamily: 'inherit',
+                  color: '#111111',
+                  cursor: 'pointer',
+                  outline: 'none',
                 }}
               >
                 <option value="">Unassigned</option>
@@ -208,8 +216,19 @@ export default function CardSidePanel({ card, members, onClose, onCardUpdate }: 
           {/* Due date */}
           {card.due && (
             <div>
-              <label style={labelStyle}>Due Date</label>
-              <span style={{ fontSize: '13px', color: isOverdue ? '#dc2626' : '#111111' }}>
+              <label style={sectionLabel}>Due Date</label>
+              <span
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  fontSize: '13px',
+                  color: isOverdue ? '#dc2626' : card.dueComplete ? '#16a34a' : '#333333',
+                  background: isOverdue ? '#fef2f2' : card.dueComplete ? '#f0fdf4' : '#f4f4f4',
+                  padding: '4px 10px',
+                  borderRadius: '6px',
+                  border: isOverdue ? '1px solid #fecaca' : card.dueComplete ? '1px solid #bbf7d0' : '1px solid #ebebeb',
+                }}
+              >
                 {fmtDate(card.due)}
                 {isOverdue && ' · Overdue'}
                 {card.dueComplete && ' · Complete'}
@@ -220,20 +239,21 @@ export default function CardSidePanel({ card, members, onClose, onCardUpdate }: 
           {/* Labels */}
           {card.labels.length > 0 && (
             <div>
-              <label style={labelStyle}>Labels</label>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+              <label style={sectionLabel}>Labels</label>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '5px' }}>
                 {card.labels.map((label) => {
                   const hex = labelHexColor(label.color);
                   return (
                     <span
                       key={label.id}
                       style={{
-                        padding: '2px 8px',
-                        borderRadius: '3px',
+                        padding: '3px 9px',
+                        borderRadius: '4px',
                         fontSize: '12px',
-                        background: hex + '1a',
+                        fontWeight: 500,
+                        background: hex + '18',
                         color: hex,
-                        border: `1px solid ${hex}33`,
+                        border: `1px solid ${hex}28`,
                       }}
                     >
                       {label.name || label.color}
@@ -247,33 +267,58 @@ export default function CardSidePanel({ card, members, onClose, onCardUpdate }: 
           {/* Checklists */}
           {card.checklists.length > 0 && (
             <div>
-              <label style={labelStyle}>Checklists</label>
+              <label style={sectionLabel}>Checklists</label>
               {card.checklists.map((cl) => {
                 const done = cl.checkItems.filter((i) => i.state === 'complete').length;
+                const pct = cl.checkItems.length > 0 ? Math.round((done / cl.checkItems.length) * 100) : 0;
                 return (
-                  <div key={cl.id} style={{ marginBottom: '10px' }}>
-                    <p style={{ fontSize: '13px', fontWeight: 500, color: '#111111', marginBottom: '6px' }}>
-                      {cl.name} — {done}/{cl.checkItems.length}
-                    </p>
+                  <div key={cl.id} style={{ marginBottom: '14px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+                      <p style={{ fontSize: '13px', fontWeight: 500, color: '#111111', margin: 0 }}>
+                        {cl.name}
+                      </p>
+                      <span style={{ fontSize: '11px', color: '#aaaaaa' }}>{done}/{cl.checkItems.length}</span>
+                    </div>
+                    {/* Progress bar */}
+                    <div style={{ height: '3px', background: '#f0f0f0', borderRadius: '2px', marginBottom: '8px', overflow: 'hidden' }}>
+                      <div
+                        style={{
+                          height: '100%',
+                          width: `${pct}%`,
+                          background: pct === 100 ? '#16a34a' : '#2563eb',
+                          borderRadius: '2px',
+                          transition: 'width 0.3s ease',
+                        }}
+                      />
+                    </div>
                     {cl.checkItems.map((item) => (
                       <div
                         key={item.id}
-                        style={{ display: 'flex', alignItems: 'center', gap: '7px', marginBottom: '4px' }}
+                        style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '5px' }}
                       >
                         <div
                           style={{
                             width: '14px',
                             height: '14px',
                             borderRadius: '3px',
-                            border: `1px solid ${item.state === 'complete' ? '#2563eb' : '#d1d5db'}`,
+                            border: `1.5px solid ${item.state === 'complete' ? '#2563eb' : '#d5d5d5'}`,
                             background: item.state === 'complete' ? '#2563eb' : '#fff',
                             flexShrink: 0,
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
                           }}
-                        />
+                        >
+                          {item.state === 'complete' && (
+                            <svg width="8" height="8" viewBox="0 0 8 8" fill="none">
+                              <path d="M1 4l2 2 4-3.5" stroke="white" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+                            </svg>
+                          )}
+                        </div>
                         <span
                           style={{
                             fontSize: '13px',
-                            color: item.state === 'complete' ? '#999999' : '#111111',
+                            color: item.state === 'complete' ? '#bbbbbb' : '#222222',
                             textDecoration: item.state === 'complete' ? 'line-through' : 'none',
                           }}
                         >
@@ -290,8 +335,20 @@ export default function CardSidePanel({ card, members, onClose, onCardUpdate }: 
           {/* Description */}
           {card.desc && (
             <div>
-              <label style={labelStyle}>Description</label>
-              <p style={{ fontSize: '13px', color: '#444444', whiteSpace: 'pre-wrap', lineHeight: 1.6 }}>
+              <label style={sectionLabel}>Description</label>
+              <p
+                style={{
+                  fontSize: '13px',
+                  color: '#444444',
+                  whiteSpace: 'pre-wrap',
+                  lineHeight: '1.65',
+                  background: '#f8f8f8',
+                  border: '1px solid #efefef',
+                  borderRadius: '6px',
+                  padding: '10px 12px',
+                  margin: 0,
+                }}
+              >
                 {card.desc}
               </p>
             </div>
@@ -299,9 +356,9 @@ export default function CardSidePanel({ card, members, onClose, onCardUpdate }: 
 
           {/* Comments */}
           <div>
-            <label style={labelStyle}>Comments</label>
+            <label style={sectionLabel}>Comments</label>
 
-            <form onSubmit={handleAddComment} style={{ marginBottom: '14px' }}>
+            <form onSubmit={handleAddComment} style={{ marginBottom: '16px' }}>
               <textarea
                 value={commentText}
                 onChange={(e) => setCommentText(e.target.value)}
@@ -309,33 +366,39 @@ export default function CardSidePanel({ card, members, onClose, onCardUpdate }: 
                 rows={2}
                 style={{
                   width: '100%',
-                  padding: '8px',
+                  padding: '8px 10px',
                   fontSize: '13px',
                   border: '1px solid #e5e5e5',
-                  borderRadius: '4px',
+                  borderRadius: '6px',
                   resize: 'vertical',
                   fontFamily: 'inherit',
                   outline: 'none',
                   boxSizing: 'border-box',
+                  color: '#111111',
+                  transition: 'border-color 0.1s ease',
                 }}
+                onFocus={(e) => (e.currentTarget.style.borderColor = '#2563eb')}
+                onBlur={(e) => (e.currentTarget.style.borderColor = '#e5e5e5')}
               />
               {commentError && (
-                <p style={{ fontSize: '12px', color: '#dc2626', marginTop: '2px' }}>{commentError}</p>
+                <p style={{ fontSize: '12px', color: '#dc2626', marginTop: '3px', marginBottom: 0 }}>{commentError}</p>
               )}
               {commentText.trim() && (
                 <button
                   type="submit"
                   disabled={submittingComment}
                   style={{
-                    marginTop: '6px',
-                    padding: '5px 12px',
+                    marginTop: '7px',
+                    padding: '6px 14px',
                     fontSize: '13px',
+                    fontWeight: 500,
                     background: '#2563eb',
                     color: '#fff',
                     border: 'none',
-                    borderRadius: '4px',
+                    borderRadius: '6px',
                     cursor: submittingComment ? 'not-allowed' : 'pointer',
                     opacity: submittingComment ? 0.7 : 1,
+                    fontFamily: 'inherit',
                   }}
                 >
                   {submittingComment ? 'Saving…' : 'Save'}
@@ -344,17 +407,17 @@ export default function CardSidePanel({ card, members, onClose, onCardUpdate }: 
             </form>
 
             {historyLoading ? (
-              <p style={{ fontSize: '13px', color: '#999999' }}>Loading…</p>
+              <p style={{ fontSize: '13px', color: '#bbbbbb' }}>Loading…</p>
             ) : comments.length === 0 ? (
-              <p style={{ fontSize: '13px', color: '#999999' }}>No comments yet.</p>
+              <p style={{ fontSize: '13px', color: '#bbbbbb' }}>No comments yet.</p>
             ) : (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
                 {comments.map((action) => (
-                  <div key={action.id} style={{ display: 'flex', gap: '8px' }}>
+                  <div key={action.id} style={{ display: 'flex', gap: '10px' }}>
                     <div
                       style={{
-                        width: '24px',
-                        height: '24px',
+                        width: '26px',
+                        height: '26px',
                         borderRadius: '50%',
                         backgroundColor: getMemberColor(action.memberCreator.fullName),
                         color: '#fff',
@@ -370,15 +433,27 @@ export default function CardSidePanel({ card, members, onClose, onCardUpdate }: 
                       {getInitials(action.memberCreator.fullName)}
                     </div>
                     <div style={{ flex: 1 }}>
-                      <div style={{ display: 'flex', alignItems: 'baseline', gap: '6px', marginBottom: '3px' }}>
+                      <div style={{ display: 'flex', alignItems: 'baseline', gap: '7px', marginBottom: '4px' }}>
                         <span style={{ fontSize: '13px', fontWeight: 500, color: '#111111' }}>
                           {action.memberCreator.fullName}
                         </span>
-                        <span style={{ fontSize: '11px', color: '#999999' }}>
+                        <span style={{ fontSize: '11px', color: '#bbbbbb' }}>
                           {fmtDateTime(action.date)}
                         </span>
                       </div>
-                      <p style={{ fontSize: '13px', color: '#444444', lineHeight: 1.5, whiteSpace: 'pre-wrap' }}>
+                      <p
+                        style={{
+                          fontSize: '13px',
+                          color: '#444444',
+                          lineHeight: '1.55',
+                          whiteSpace: 'pre-wrap',
+                          background: '#f8f8f8',
+                          border: '1px solid #efefef',
+                          borderRadius: '6px',
+                          padding: '8px 10px',
+                          margin: 0,
+                        }}
+                      >
                         {action.data.text}
                       </p>
                     </div>
@@ -391,17 +466,49 @@ export default function CardSidePanel({ card, members, onClose, onCardUpdate }: 
           {/* Activity */}
           {!historyLoading && movements.length > 0 && (
             <div>
-              <label style={labelStyle}>Activity</label>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+              <label style={sectionLabel}>Activity</label>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '7px' }}>
                 {movements.slice(0, 10).map((action) => (
-                  <div key={action.id} style={{ fontSize: '12px', color: '#666666', lineHeight: 1.4 }}>
-                    <span style={{ fontWeight: 500 }}>{action.memberCreator.fullName}</span>
-                    {' moved '}
-                    <span style={{ color: '#999999' }}>{action.data.listBefore?.name}</span>
-                    {' → '}
-                    <span style={{ color: '#111111' }}>{action.data.listAfter?.name}</span>
-                    {'  ·  '}
-                    <span style={{ color: '#bbbbbb' }}>{fmtDateTime(action.date)}</span>
+                  <div
+                    key={action.id}
+                    style={{
+                      fontSize: '12px',
+                      color: '#777777',
+                      lineHeight: '1.5',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '6px',
+                      flexWrap: 'wrap',
+                    }}
+                  >
+                    <span style={{ fontWeight: 500, color: '#555555' }}>{action.memberCreator.fullName}</span>
+                    <span>moved</span>
+                    <span
+                      style={{
+                        padding: '1px 6px',
+                        background: '#f4f4f4',
+                        borderRadius: '4px',
+                        fontSize: '11.5px',
+                        color: '#888888',
+                        border: '1px solid #ebebeb',
+                      }}
+                    >
+                      {action.data.listBefore?.name}
+                    </span>
+                    <span style={{ color: '#cccccc' }}>→</span>
+                    <span
+                      style={{
+                        padding: '1px 6px',
+                        background: '#f0f5ff',
+                        borderRadius: '4px',
+                        fontSize: '11.5px',
+                        color: '#2563eb',
+                        border: '1px solid #dbeafe',
+                      }}
+                    >
+                      {action.data.listAfter?.name}
+                    </span>
+                    <span style={{ color: '#cccccc', fontSize: '11px' }}>{fmtDateTime(action.date)}</span>
                   </div>
                 ))}
               </div>
