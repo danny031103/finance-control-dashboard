@@ -129,7 +129,11 @@ export async function GET() {
   // Dataset D: active cards by assignee
   const doneListIds = new Set(
     boardData.lists
-      .filter((l) => /done|completed/i.test(l.name) || /team schedules/i.test(l.name))
+      .filter(
+        (l) =>
+          /done|completed|closed/i.test(l.name) ||
+          /team.{0,5}schedule|here.{0,5}team|^resources$/i.test(l.name)
+      )
       .map((l) => l.id)
   );
 

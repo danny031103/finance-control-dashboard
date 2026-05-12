@@ -46,6 +46,28 @@ function ChatIcon() {
   )
 }
 
+function WorkloadIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <circle cx="8" cy="5" r="2.5" stroke="currentColor" strokeWidth="1.3" />
+      <circle cx="3" cy="6" r="1.8" stroke="currentColor" strokeWidth="1.3" />
+      <circle cx="13" cy="6" r="1.8" stroke="currentColor" strokeWidth="1.3" />
+      <path d="M1 13.5c0-1.93 1.34-3.5 3-3.5s3 1.57 3 3.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+      <path d="M9 13.5c0-1.93 1.34-3.5 3-3.5s3 1.57 3 3.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+      <path d="M5 13.5c0-2.21 1.34-4 3-4s3 1.79 3 4" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+function TeamIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <circle cx="8" cy="4.5" r="2.5" stroke="currentColor" strokeWidth="1.3" />
+      <path d="M2.5 14c0-3.04 2.46-5.5 5.5-5.5s5.5 2.46 5.5 5.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
+    </svg>
+  )
+}
+
 function LogoutIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
@@ -58,8 +80,10 @@ function LogoutIcon() {
 const NAV_LINKS = [
   { label: 'Board', href: '/', Icon: BoardIcon },
   { label: 'Analytics', href: '/analytics', Icon: AnalyticsIcon },
+  { label: 'Workload', href: '/workload', Icon: WorkloadIcon },
   { label: 'Briefing', href: '/briefing', Icon: BriefingIcon },
   { label: 'Chat', href: '/chat', Icon: ChatIcon },
+  { label: 'Team', href: '/team', Icon: TeamIcon },
 ]
 
 export default function SidebarNav() {

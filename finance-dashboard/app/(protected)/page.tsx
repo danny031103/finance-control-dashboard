@@ -146,7 +146,11 @@ export default function BoardPage() {
   if (!data) return null;
 
   const selectedCard = selectedCardId ? (data.cards.find((c) => c.id === selectedCardId) ?? null) : null;
-  const totalCards = data.cards.length;
+
+  const HIDDEN_LIST_RE = /here.{0,10}team|team.{0,10}schedule|resources/i;
+  const visibleLists = data.lists.filter((l) => !HIDDEN_LIST_RE.test(l.name));
+  const hiddenListIds = new Set(data.lists.filter((l) => HIDDEN_LIST_RE.test(l.name)).map((l) => l.id));
+  const totalCards = data.cards.filter((c) => !hiddenListIds.has(c.idList)).length;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0 }}>
@@ -230,25 +234,22 @@ export default function BoardPage() {
             flex: 1,
           }}
         >
-          {data.lists.map((list) => {
+          {visibleLists.map((list) => {
             const cards = data.cards
               .filter((c) => c.idList === list.id)
               .sort((a, b) => a.pos - b.pos);
-            const isTeamSchedules = /team\s*schedule/i.test(list.name);
-
             return (
               <div
                 key={list.id}
                 style={{
                   width: '278px',
                   flexShrink: 0,
-                  background: isTeamSchedules ? '#f7f7f5' : '#ffffff',
+                  background: '#ffffff',
                   borderRadius: '8px',
                   border: '1px solid #e8e8e8',
                   boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
                   display: 'flex',
                   flexDirection: 'column',
-                  opacity: isTeamSchedules ? 0.85 : 1,
                 }}
               >
                 {/* Column header */}
@@ -266,7 +267,7 @@ export default function BoardPage() {
                     style={{
                       fontSize: '13px',
                       fontWeight: 500,
-                      color: isTeamSchedules ? '#999999' : '#111111',
+                      color: '#111111',
                       letterSpacing: '-0.01em',
                     }}
                   >
@@ -326,9 +327,8 @@ export default function BoardPage() {
                     onAdd={handleCardAdded}
                   />
                 ) : (
-                  !isTeamSchedules && (
-                    <button
-                      onClick={() => setAddingToList(list.id)}
+                  <button
+                    onClick={() => setAddingToList(list.id)}
                       style={{
                         textAlign: 'left',
                         padding: '8px 14px 10px',
@@ -347,7 +347,6 @@ export default function BoardPage() {
                     >
                       + Add card
                     </button>
-                  )
                 )}
               </div>
             );
@@ -361,6 +360,7 @@ export default function BoardPage() {
           key={selectedCard.id}
           card={selectedCard}
           members={data.members}
+          lists={data.lists}
           onClose={() => setSelectedCardId(null)}
           onCardUpdate={handleCardUpdate}
         />

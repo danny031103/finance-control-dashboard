@@ -1,23 +1,29 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import type { TrelloMember, CardAction } from '@/lib/trello';
+import type { TrelloMember, TrelloList, CardAction } from '@/lib/trello';
 import { getMemberColor, getInitials, labelHexColor } from '@/lib/utils';
 import type { EnrichedCard } from './KanbanCard';
 
 interface Props {
   card: EnrichedCard;
   members: TrelloMember[];
+  lists: TrelloList[];
   onClose: () => void;
   onCardUpdate: (cardId: string, changes: Partial<EnrichedCard>) => void;
 }
 
-export default function CardSidePanel({ card, members, onClose, onCardUpdate }: Props) {
+export default function CardSidePanel({ card, members, lists, onClose, onCardUpdate }: Props) {
   const [history, setHistory] = useState<CardAction[]>([]);
   const [historyLoading, setHistoryLoading] = useState(true);
   const [commentText, setCommentText] = useState('');
   const [submittingComment, setSubmittingComment] = useState(false);
   const [commentError, setCommentError] = useState('');
+  const [movingCard, setMovingCard] = useState(false);
+  const [moveSuccess, setMoveSuccess] = useState(false);
+  const [moveError, setMoveError] = useState('');
+  const [assigneeSuccess, setAssigneeSuccess] = useState(false);
+  const [commentSuccess, setCommentSuccess] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -61,6 +67,8 @@ export default function CardSidePanel({ card, members, onClose, onCardUpdate }: 
       };
       setHistory((prev) => [optimistic, ...prev]);
       setCommentText('');
+      setCommentSuccess(true);
+      setTimeout(() => setCommentSuccess(false), 2000);
     } catch {
       setCommentError('Failed to add comment');
     } finally {
@@ -79,8 +87,33 @@ export default function CardSidePanel({ card, members, onClose, onCardUpdate }: 
       });
       if (!res.ok) throw new Error();
       onCardUpdate(card.id, { idMembers: newMembers });
+      setAssigneeSuccess(true);
+      setTimeout(() => setAssigneeSuccess(false), 2000);
     } catch {
       // selection snaps back on next render
+    }
+  };
+
+  const handleMoveCard = async (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const newListId = e.target.value;
+    if (!newListId || newListId === card.idList) return;
+    setMovingCard(true);
+    setMoveError('');
+    setMoveSuccess(false);
+    try {
+      const res = await fetch(`/api/card/${card.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idList: newListId }),
+      });
+      if (!res.ok) throw new Error();
+      onCardUpdate(card.id, { idList: newListId });
+      setMoveSuccess(true);
+      setTimeout(() => setMoveSuccess(false), 2000);
+    } catch {
+      setMoveError('Failed to move card');
+    } finally {
+      setMovingCard(false);
     }
   };
 
@@ -166,9 +199,53 @@ export default function CardSidePanel({ card, members, onClose, onCardUpdate }: 
         {/* Body */}
         <div style={{ padding: '18px 20px', display: 'flex', flexDirection: 'column', gap: '20px' }}>
 
+          {/* Move to column */}
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+              <label style={{ ...sectionLabel, marginBottom: 0 }}>Move to Column</label>
+              {moveSuccess && (
+                <span style={{ fontSize: '12px', color: '#16a34a', fontWeight: 500 }}>Moved</span>
+              )}
+              {moveError && (
+                <span style={{ fontSize: '12px', color: '#dc2626' }}>{moveError}</span>
+              )}
+            </div>
+            <select
+              value={card.idList}
+              onChange={handleMoveCard}
+              disabled={movingCard}
+              style={{
+                width: '100%',
+                padding: '6px 9px',
+                fontSize: '13px',
+                border: '1px solid #e5e5e5',
+                borderRadius: '6px',
+                background: movingCard ? '#f8f8f8' : '#fff',
+                fontFamily: 'inherit',
+                color: '#111111',
+                cursor: movingCard ? 'not-allowed' : 'pointer',
+                outline: 'none',
+                opacity: movingCard ? 0.7 : 1,
+              }}
+              onFocus={(e) => (e.currentTarget.style.borderColor = '#2563eb')}
+              onBlur={(e) => (e.currentTarget.style.borderColor = '#e5e5e5')}
+            >
+              {lists
+                .filter((l) => !/team\s*schedule/i.test(l.name))
+                .map((l) => (
+                  <option key={l.id} value={l.id}>{l.name}</option>
+                ))}
+            </select>
+          </div>
+
           {/* Assignee */}
           <div>
-            <label style={sectionLabel}>Assignee</label>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+              <label style={{ ...sectionLabel, marginBottom: 0 }}>Assignee</label>
+              {assigneeSuccess && (
+                <span style={{ fontSize: '12px', color: '#16a34a', fontWeight: 500 }}>Saved</span>
+              )}
+            </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               {primaryMember && (
                 <div
@@ -204,6 +281,8 @@ export default function CardSidePanel({ card, members, onClose, onCardUpdate }: 
                   cursor: 'pointer',
                   outline: 'none',
                 }}
+                onFocus={(e) => (e.currentTarget.style.borderColor = '#2563eb')}
+                onBlur={(e) => (e.currentTarget.style.borderColor = '#e5e5e5')}
               >
                 <option value="">Unassigned</option>
                 {members.map((m) => (
@@ -356,7 +435,12 @@ export default function CardSidePanel({ card, members, onClose, onCardUpdate }: 
 
           {/* Comments */}
           <div>
-            <label style={sectionLabel}>Comments</label>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+              <label style={{ ...sectionLabel, marginBottom: 0 }}>Comments</label>
+              {commentSuccess && (
+                <span style={{ fontSize: '12px', color: '#16a34a', fontWeight: 500 }}>Saved</span>
+              )}
+            </div>
 
             <form onSubmit={handleAddComment} style={{ marginBottom: '16px' }}>
               <textarea
