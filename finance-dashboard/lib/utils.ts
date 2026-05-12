@@ -1,5 +1,46 @@
 const MEMBER_COLORS = ['#6366f1', '#0891b2', '#059669', '#d97706', '#dc2626'];
 
+// Trello labels used for person assignment instead of the Trello member feature.
+// Add or rename entries here if label names change.
+const PERSON_LABEL_PATTERNS: { pattern: RegExp; name: string }[] = [
+  { pattern: /^dany$/i, name: 'Dany' },
+  { pattern: /^bill$/i, name: 'Bill' },
+  { pattern: /^liss$/i, name: 'Liss' },
+  { pattern: /^yagnesh$/i, name: 'Yagnesh' },
+  { pattern: /^manoel$/i, name: 'Manoel' },
+  { pattern: /^anubov$/i, name: 'Anubov' },
+];
+
+export interface LabelAssignee {
+  id: string;
+  name: string;
+  initials: string;
+  color: string;
+}
+
+export function getLabelAssignees(
+  labels: { id: string; name: string; color: string }[]
+): LabelAssignee[] {
+  const assignees: LabelAssignee[] = [];
+  for (const label of labels) {
+    for (const { pattern, name } of PERSON_LABEL_PATTERNS) {
+      if (pattern.test(label.name.trim())) {
+        assignees.push({
+          id: `label-person-${name.toLowerCase()}`,
+          name,
+          initials: getInitials(name),
+          color: getMemberColor(name),
+        });
+        break;
+      }
+    }
+  }
+  return assignees;
+}
+
+// All known person names for the workload view, in display order.
+export const PERSON_NAMES = PERSON_LABEL_PATTERNS.map((p) => p.name);
+
 export function getMemberColor(name: string): string {
   let hash = 0;
   for (let i = 0; i < name.length; i++) {

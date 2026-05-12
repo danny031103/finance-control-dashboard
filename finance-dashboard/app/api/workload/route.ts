@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getBoardData, getBoardHistory, computeDaysInColumn } from '@/lib/trello';
-import { getMemberColor, getInitials } from '@/lib/utils';
+import { getMemberColor, getInitials, getLabelAssignees, PERSON_NAMES } from '@/lib/utils';
 
 export interface StuckCard {
   id: string;
@@ -59,15 +59,15 @@ export async function GET() {
     (c) => !excludedListIds.has(c.idList) && !doneListIds.has(c.idList)
   );
 
-  // Per-member aggregation
+  // Per-person aggregation — keyed by stable label-person id, seeded from known person names
   const memberMap = new Map<string, MemberWorkload>(
-    boardData.members.map((m) => [
-      m.id,
+    PERSON_NAMES.map((name) => [
+      `label-person-${name.toLowerCase()}`,
       {
-        id: m.id,
-        name: m.fullName,
-        initials: getInitials(m.fullName),
-        color: getMemberColor(m.fullName),
+        id: `label-person-${name.toLowerCase()}`,
+        name,
+        initials: getInitials(name),
+        color: getMemberColor(name),
         totalCards: 0,
         columnBreakdown: [],
         stuckCards: [],
@@ -95,23 +95,24 @@ export async function GET() {
       daysStuck: days,
     };
 
-    if (card.idMembers.length === 0) {
+    const labelAssignees = getLabelAssignees(card.labels);
+
+    if (labelAssignees.length === 0) {
       // Unassigned
       unassignedColumnCounts.set(columnName, (unassignedColumnCounts.get(columnName) ?? 0) + 1);
       if (isStuck) unassignedStuck.push(stuckEntry);
     } else {
-      for (const memberId of card.idMembers) {
-        const member = memberMap.get(memberId);
+      for (const assignee of labelAssignees) {
+        const member = memberMap.get(assignee.id);
         if (!member) continue;
 
         member.totalCards++;
 
-        const cols = memberColumnCounts.get(memberId) ?? new Map<string, number>();
+        const cols = memberColumnCounts.get(assignee.id) ?? new Map<string, number>();
         cols.set(columnName, (cols.get(columnName) ?? 0) + 1);
-        memberColumnCounts.set(memberId, cols);
+        memberColumnCounts.set(assignee.id, cols);
 
         if (isStuck) {
-          // Avoid duplicate stuck entries if a card has multiple members
           if (!member.stuckCards.find((s) => s.id === card.id)) {
             member.stuckCards.push(stuckEntry);
             member.stuckCount++;

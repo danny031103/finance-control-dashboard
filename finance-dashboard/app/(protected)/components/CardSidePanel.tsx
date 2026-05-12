@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import type { TrelloMember, TrelloList, CardAction } from '@/lib/trello';
-import { getMemberColor, getInitials, labelHexColor } from '@/lib/utils';
+import { getMemberColor, getInitials, labelHexColor, getLabelAssignees } from '@/lib/utils';
 import type { EnrichedCard } from './KanbanCard';
 
 interface Props {
@@ -13,7 +13,7 @@ interface Props {
   onCardUpdate: (cardId: string, changes: Partial<EnrichedCard>) => void;
 }
 
-export default function CardSidePanel({ card, members, lists, onClose, onCardUpdate }: Props) {
+export default function CardSidePanel({ card, members: _members, lists, onClose, onCardUpdate }: Props) {
   const [history, setHistory] = useState<CardAction[]>([]);
   const [historyLoading, setHistoryLoading] = useState(true);
   const [commentText, setCommentText] = useState('');
@@ -22,7 +22,6 @@ export default function CardSidePanel({ card, members, lists, onClose, onCardUpd
   const [movingCard, setMovingCard] = useState(false);
   const [moveSuccess, setMoveSuccess] = useState(false);
   const [moveError, setMoveError] = useState('');
-  const [assigneeSuccess, setAssigneeSuccess] = useState(false);
   const [commentSuccess, setCommentSuccess] = useState(false);
 
   useEffect(() => {
@@ -76,24 +75,6 @@ export default function CardSidePanel({ card, members, lists, onClose, onCardUpd
     }
   };
 
-  const handleAssigneeChange = async (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const newId = e.target.value;
-    const newMembers = newId ? [newId] : [];
-    try {
-      const res = await fetch(`/api/card/${card.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ idMembers: newMembers }),
-      });
-      if (!res.ok) throw new Error();
-      onCardUpdate(card.id, { idMembers: newMembers });
-      setAssigneeSuccess(true);
-      setTimeout(() => setAssigneeSuccess(false), 2000);
-    } catch {
-      // selection snaps back on next render
-    }
-  };
-
   const handleMoveCard = async (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newListId = e.target.value;
     if (!newListId || newListId === card.idList) return;
@@ -117,9 +98,8 @@ export default function CardSidePanel({ card, members, lists, onClose, onCardUpd
     }
   };
 
-  const primaryAssigneeId = card.idMembers[0] ?? '';
   const isOverdue = card.due && !card.dueComplete && new Date(card.due) < new Date();
-  const primaryMember = members.find((m) => m.id === primaryAssigneeId);
+  const labelAssignees = getLabelAssignees(card.labels);
 
   const fmtDate = (d: string) =>
     new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
@@ -240,56 +220,35 @@ export default function CardSidePanel({ card, members, lists, onClose, onCardUpd
 
           {/* Assignee */}
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
-              <label style={{ ...sectionLabel, marginBottom: 0 }}>Assignee</label>
-              {assigneeSuccess && (
-                <span style={{ fontSize: '12px', color: '#16a34a', fontWeight: 500 }}>Saved</span>
-              )}
-            </div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              {primaryMember && (
-                <div
-                  style={{
-                    width: '28px',
-                    height: '28px',
-                    borderRadius: '50%',
-                    backgroundColor: getMemberColor(primaryMember.fullName),
-                    color: '#fff',
-                    fontSize: '11px',
-                    fontWeight: 600,
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    flexShrink: 0,
-                  }}
-                >
-                  {getInitials(primaryMember.fullName)}
-                </div>
-              )}
-              <select
-                value={primaryAssigneeId}
-                onChange={handleAssigneeChange}
-                style={{
-                  flex: 1,
-                  padding: '6px 9px',
-                  fontSize: '13px',
-                  border: '1px solid #e5e5e5',
-                  borderRadius: '6px',
-                  background: '#fff',
-                  fontFamily: 'inherit',
-                  color: '#111111',
-                  cursor: 'pointer',
-                  outline: 'none',
-                }}
-                onFocus={(e) => (e.currentTarget.style.borderColor = '#2563eb')}
-                onBlur={(e) => (e.currentTarget.style.borderColor = '#e5e5e5')}
-              >
-                <option value="">Unassigned</option>
-                {members.map((m) => (
-                  <option key={m.id} value={m.id}>{m.fullName}</option>
+            <label style={sectionLabel}>Assignee</label>
+            {labelAssignees.length === 0 ? (
+              <span style={{ fontSize: '13px', color: '#bbbbbb' }}>Unassigned</span>
+            ) : (
+              <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                {labelAssignees.map((assignee) => (
+                  <div key={assignee.id} style={{ display: 'flex', alignItems: 'center', gap: '7px' }}>
+                    <div
+                      style={{
+                        width: '28px',
+                        height: '28px',
+                        borderRadius: '50%',
+                        backgroundColor: assignee.color,
+                        color: '#fff',
+                        fontSize: '11px',
+                        fontWeight: 600,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        flexShrink: 0,
+                      }}
+                    >
+                      {assignee.initials}
+                    </div>
+                    <span style={{ fontSize: '13px', color: '#333333', fontWeight: 500 }}>{assignee.name}</span>
+                  </div>
                 ))}
-              </select>
-            </div>
+              </div>
+            )}
           </div>
 
           {/* Due date */}

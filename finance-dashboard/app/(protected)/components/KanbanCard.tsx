@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Draggable } from '@hello-pangea/dnd';
 import type { TrelloCard, TrelloMember } from '@/lib/trello';
-import { getMemberColor, getInitials, stalenessColor, labelHexColor } from '@/lib/utils';
+import { stalenessColor, labelHexColor, getLabelAssignees } from '@/lib/utils';
 
 export type EnrichedCard = TrelloCard & { daysInColumn: number };
 
@@ -14,9 +14,9 @@ interface Props {
   onClick: () => void;
 }
 
-export default function KanbanCard({ card, index, members, onClick }: Props) {
+export default function KanbanCard({ card, index, members: _members, onClick }: Props) {
   const [hovered, setHovered] = useState(false);
-  const assignees = members.filter((m) => card.idMembers.includes(m.id));
+  const assignees = getLabelAssignees(card.labels);
   const isOverdue = card.due && !card.dueComplete && new Date(card.due) < new Date();
   const borderColor = stalenessColor(card.daysInColumn);
 
@@ -125,15 +125,15 @@ export default function KanbanCard({ card, index, members, onClick }: Props) {
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '8px' }}>
             {/* Avatars */}
             <div style={{ display: 'flex', gap: '3px' }}>
-              {assignees.map((member) => (
+              {assignees.map((assignee) => (
                 <div
-                  key={member.id}
-                  title={member.fullName}
+                  key={assignee.id}
+                  title={assignee.name}
                   style={{
                     width: '20px',
                     height: '20px',
                     borderRadius: '50%',
-                    backgroundColor: getMemberColor(member.fullName),
+                    backgroundColor: assignee.color,
                     color: '#ffffff',
                     fontSize: '8.5px',
                     fontWeight: 600,
@@ -144,7 +144,7 @@ export default function KanbanCard({ card, index, members, onClick }: Props) {
                     letterSpacing: '0.02em',
                   }}
                 >
-                  {getInitials(member.fullName)}
+                  {assignee.initials}
                 </div>
               ))}
             </div>
