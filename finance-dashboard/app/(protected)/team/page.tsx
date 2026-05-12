@@ -248,7 +248,7 @@ function Panel({ list }: { list: TeamList }) {
     <div
       style={{
         background: '#ffffff',
-        border: '1px solid #e5e5e5',
+        border: '1px solid #111111',
         borderRadius: '8px',
         overflow: 'hidden',
       }}

@@ -63,7 +63,7 @@ function ChartCard({ title, children, fullWidth = false }: { title: string; chil
     <div
       style={{
         background: '#ffffff',
-        border: '1px solid #ebebeb',
+        border: '1px solid #111111',
         borderRadius: '8px',
         overflow: 'hidden',
         gridColumn: fullWidth ? '1 / -1' : undefined,

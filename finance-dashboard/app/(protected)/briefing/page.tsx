@@ -23,6 +23,8 @@ function getSectionMeta(title: string): SectionMeta {
     return { accent: '#0891b2', bg: '#f0f9ff', border: '#bae6fd', icon: <ProgressIcon /> };
   if (t.includes('attention') || t.includes('blocked'))
     return { accent: '#ca8a04', bg: '#fefce8', border: '#fde68a', icon: <AttentionIcon /> };
+  if (t.includes('notice') || t.includes('schedule') || t.includes('holiday'))
+    return { accent: '#7c3aed', bg: '#f5f3ff', border: '#ddd6fe', icon: <CalendarIcon /> };
   return { accent: '#666666', bg: '#f5f5f5', border: '#e5e5e5', icon: null };
 }
 
@@ -66,6 +68,15 @@ function AttentionIcon() {
       <circle cx="7" cy="7" r="6" stroke="currentColor" strokeWidth="1.5" />
       <path d="M7 4v4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
       <circle cx="7" cy="10" r="0.75" fill="currentColor" />
+    </svg>
+  );
+}
+function CalendarIcon() {
+  return (
+    <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+      <rect x="1.5" y="2.5" width="11" height="10" rx="1.5" stroke="currentColor" strokeWidth="1.5" />
+      <path d="M1.5 6h11" stroke="currentColor" strokeWidth="1.5" />
+      <path d="M4.5 1v3M9.5 1v3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
     </svg>
   );
 }
@@ -185,7 +196,7 @@ function SectionCard({ section }: { section: ParsedSection }) {
     <div
       style={{
         background: '#ffffff',
-        border: `1px solid ${section.isPartial ? '#e5e5e5' : meta.border}`,
+        border: `1px solid ${section.isPartial ? '#e5e5e5' : '#111111'}`,
         borderRadius: '8px',
         overflow: 'hidden',
         opacity: section.isPartial ? 0.75 : 1,
@@ -199,7 +210,7 @@ function SectionCard({ section }: { section: ParsedSection }) {
           gap: '8px',
           padding: '11px 16px',
           background: section.isPartial ? '#f9f9f9' : meta.bg,
-          borderBottom: `1px solid ${section.isPartial ? '#e5e5e5' : meta.border}`,
+          borderBottom: `1px solid ${section.isPartial ? '#e5e5e5' : '#111111'}`,
         }}
       >
         <span style={{ color: meta.accent, display: 'flex', alignItems: 'center' }}>

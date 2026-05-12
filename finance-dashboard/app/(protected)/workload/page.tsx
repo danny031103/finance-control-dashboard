@@ -106,7 +106,7 @@ function MemberCard({ member }: { member: MemberWorkload }) {
     <div
       style={{
         background: '#ffffff',
-        border: '1px solid #e5e5e5',
+        border: '1px solid #111111',
         borderRadius: '8px',
         padding: '16px 18px',
         boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
@@ -279,7 +279,7 @@ export default function WorkloadPage() {
               <div
                 style={{
                   background: '#ffffff',
-                  border: '1px solid #e5e5e5',
+                  border: '1px solid #111111',
                   borderRadius: '8px',
                   padding: '16px 18px',
                   boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
@@ -335,7 +335,7 @@ export default function WorkloadPage() {
           <div
             style={{
               background: '#ffffff',
-              border: '1px solid #e5e5e5',
+              border: '1px solid #111111',
               borderRadius: '8px',
               padding: '24px 20px',
               textAlign: 'center',
@@ -349,7 +349,7 @@ export default function WorkloadPage() {
           <div
             style={{
               background: '#ffffff',
-              border: '1px solid #e5e5e5',
+              border: '1px solid #111111',
               borderRadius: '8px',
               overflow: 'hidden',
             }}
