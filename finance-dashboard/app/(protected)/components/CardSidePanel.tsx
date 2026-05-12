@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { TrelloMember, TrelloList, CardAction } from '@/lib/trello';
 import { getMemberColor, getInitials, labelHexColor, getLabelAssignees } from '@/lib/utils';
 import type { EnrichedCard } from './KanbanCard';
@@ -23,6 +23,19 @@ export default function CardSidePanel({ card, members: _members, lists, onClose,
   const [moveSuccess, setMoveSuccess] = useState(false);
   const [moveError, setMoveError] = useState('');
   const [commentSuccess, setCommentSuccess] = useState(false);
+
+  const [editingTitle, setEditingTitle] = useState(false);
+  const [titleValue, setTitleValue] = useState(card.name);
+  const [savingTitle, setSavingTitle] = useState(false);
+  const [titleError, setTitleError] = useState('');
+
+  const [editingDesc, setEditingDesc] = useState(false);
+  const [descValue, setDescValue] = useState(card.desc || '');
+  const [savingDesc, setSavingDesc] = useState(false);
+  const [descError, setDescError] = useState('');
+
+  const titleInputRef = useRef<HTMLTextAreaElement>(null);
+  const descInputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -98,6 +111,48 @@ export default function CardSidePanel({ card, members: _members, lists, onClose,
     }
   };
 
+  const handleSaveTitle = async () => {
+    const trimmed = titleValue.trim();
+    if (!trimmed || trimmed === card.name) { setEditingTitle(false); setTitleValue(card.name); return; }
+    setSavingTitle(true);
+    setTitleError('');
+    try {
+      const res = await fetch(`/api/card/${card.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: trimmed }),
+      });
+      if (!res.ok) throw new Error();
+      onCardUpdate(card.id, { name: trimmed });
+      setEditingTitle(false);
+    } catch {
+      setTitleError('Failed to save');
+    } finally {
+      setSavingTitle(false);
+    }
+  };
+
+  const handleSaveDesc = async () => {
+    const trimmed = descValue.trim();
+    if (trimmed === (card.desc || '').trim()) { setEditingDesc(false); return; }
+    setSavingDesc(true);
+    setDescError('');
+    try {
+      const res = await fetch(`/api/card/${card.id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ desc: trimmed }),
+      });
+      if (!res.ok) throw new Error();
+      onCardUpdate(card.id, { desc: trimmed });
+      setEditingDesc(false);
+    } catch {
+      setDescError('Failed to save');
+    } finally {
+      setSavingDesc(false);
+    }
+  };
+
   const isOverdue = card.due && !card.dueComplete && new Date(card.due) < new Date();
   const labelAssignees = getLabelAssignees(card.labels);
 
@@ -152,9 +207,62 @@ export default function CardSidePanel({ card, members: _members, lists, onClose,
             flexShrink: 0,
           }}
         >
-          <h2 style={{ flex: 1, fontSize: '15px', fontWeight: 600, color: '#111111', lineHeight: 1.4, margin: 0 }}>
-            {card.name}
-          </h2>
+          <div style={{ flex: 1 }}>
+            {editingTitle ? (
+              <div>
+                <textarea
+                  ref={titleInputRef}
+                  value={titleValue}
+                  onChange={(e) => setTitleValue(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSaveTitle(); }
+                    if (e.key === 'Escape') { setEditingTitle(false); setTitleValue(card.name); }
+                  }}
+                  onBlur={handleSaveTitle}
+                  disabled={savingTitle}
+                  rows={2}
+                  style={{
+                    width: '100%',
+                    fontSize: '15px',
+                    fontWeight: 600,
+                    color: '#111111',
+                    lineHeight: 1.4,
+                    fontFamily: 'inherit',
+                    border: '1px solid #2563eb',
+                    borderRadius: '5px',
+                    padding: '4px 6px',
+                    resize: 'none',
+                    outline: 'none',
+                    boxSizing: 'border-box',
+                    background: savingTitle ? '#f8f8f8' : '#fff',
+                  }}
+                  autoFocus
+                />
+                {titleError && <p style={{ fontSize: '11px', color: '#dc2626', margin: '3px 0 0' }}>{titleError}</p>}
+              </div>
+            ) : (
+              <h2
+                onClick={() => { setEditingTitle(true); setTitleValue(card.name); setTimeout(() => titleInputRef.current?.focus(), 0); }}
+                title="Click to edit"
+                style={{
+                  fontSize: '15px',
+                  fontWeight: 600,
+                  color: '#111111',
+                  lineHeight: 1.4,
+                  margin: 0,
+                  cursor: 'text',
+                  borderRadius: '4px',
+                  padding: '2px 4px',
+                  marginLeft: '-4px',
+                  transition: 'background 0.1s ease',
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.background = '#f4f4f4')}
+                onMouseLeave={(e) => (e.currentTarget.style.background = 'transparent')}
+              >
+                {card.name}
+              </h2>
+            )}
+          </div>
           <button
             onClick={onClose}
             style={{
@@ -371,10 +479,86 @@ export default function CardSidePanel({ card, members: _members, lists, onClose,
           )}
 
           {/* Description */}
-          {card.desc && (
-            <div>
-              <label style={sectionLabel}>Description</label>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+              <label style={{ ...sectionLabel, marginBottom: 0 }}>Description</label>
+              {!editingDesc && (
+                <button
+                  onClick={() => { setEditingDesc(true); setDescValue(card.desc || ''); setTimeout(() => descInputRef.current?.focus(), 0); }}
+                  style={{ fontSize: '11px', color: '#2563eb', background: 'none', border: 'none', cursor: 'pointer', fontFamily: 'inherit', padding: 0 }}
+                >
+                  Edit
+                </button>
+              )}
+            </div>
+            {editingDesc ? (
+              <div>
+                <textarea
+                  ref={descInputRef}
+                  value={descValue}
+                  onChange={(e) => setDescValue(e.target.value)}
+                  onKeyDown={(e) => { if (e.key === 'Escape') { setEditingDesc(false); setDescValue(card.desc || ''); } }}
+                  disabled={savingDesc}
+                  rows={5}
+                  placeholder="Add a description…"
+                  style={{
+                    width: '100%',
+                    fontSize: '13px',
+                    color: '#444444',
+                    fontFamily: 'inherit',
+                    border: '1px solid #2563eb',
+                    borderRadius: '6px',
+                    padding: '8px 10px',
+                    resize: 'vertical',
+                    outline: 'none',
+                    boxSizing: 'border-box',
+                    lineHeight: '1.65',
+                    background: savingDesc ? '#f8f8f8' : '#fff',
+                  }}
+                  autoFocus
+                />
+                {descError && <p style={{ fontSize: '11px', color: '#dc2626', margin: '3px 0 0' }}>{descError}</p>}
+                <div style={{ display: 'flex', gap: '8px', marginTop: '7px' }}>
+                  <button
+                    onClick={handleSaveDesc}
+                    disabled={savingDesc}
+                    style={{
+                      padding: '5px 14px',
+                      fontSize: '13px',
+                      fontWeight: 500,
+                      background: '#2563eb',
+                      color: '#fff',
+                      border: 'none',
+                      borderRadius: '6px',
+                      cursor: savingDesc ? 'not-allowed' : 'pointer',
+                      opacity: savingDesc ? 0.7 : 1,
+                      fontFamily: 'inherit',
+                    }}
+                  >
+                    {savingDesc ? 'Saving…' : 'Save'}
+                  </button>
+                  <button
+                    onClick={() => { setEditingDesc(false); setDescValue(card.desc || ''); }}
+                    disabled={savingDesc}
+                    style={{
+                      padding: '5px 12px',
+                      fontSize: '13px',
+                      color: '#666666',
+                      background: 'none',
+                      border: '1px solid #e5e5e5',
+                      borderRadius: '6px',
+                      cursor: 'pointer',
+                      fontFamily: 'inherit',
+                    }}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            ) : card.desc ? (
               <p
+                onClick={() => { setEditingDesc(true); setDescValue(card.desc || ''); setTimeout(() => descInputRef.current?.focus(), 0); }}
+                title="Click to edit"
                 style={{
                   fontSize: '13px',
                   color: '#444444',
@@ -385,12 +569,31 @@ export default function CardSidePanel({ card, members: _members, lists, onClose,
                   borderRadius: '6px',
                   padding: '10px 12px',
                   margin: 0,
+                  cursor: 'text',
                 }}
               >
                 {card.desc}
               </p>
-            </div>
-          )}
+            ) : (
+              <button
+                onClick={() => { setEditingDesc(true); setDescValue(''); setTimeout(() => descInputRef.current?.focus(), 0); }}
+                style={{
+                  fontSize: '13px',
+                  color: '#bbbbbb',
+                  background: '#f8f8f8',
+                  border: '1px solid #efefef',
+                  borderRadius: '6px',
+                  padding: '10px 12px',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  width: '100%',
+                  fontFamily: 'inherit',
+                }}
+              >
+                Add a description…
+              </button>
+            )}
+          </div>
 
           {/* Comments */}
           <div>

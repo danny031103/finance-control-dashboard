@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getBoardData, getBoardHistory, type CardAction } from '@/lib/trello';
-import { getMemberColor } from '@/lib/utils';
+import { getMemberColor, getLabelAssignees } from '@/lib/utils';
 
 function isoWeekLabel(dateStr: string): string {
   const d = new Date(dateStr);
@@ -140,13 +140,12 @@ export async function GET() {
   const assigneeCounts: Record<string, number> = {};
   for (const card of boardData.cards) {
     if (doneListIds.has(card.idList)) continue;
-    if (card.idMembers.length === 0) {
+    const labelAssignees = getLabelAssignees(card.labels ?? []);
+    if (labelAssignees.length === 0) {
       assigneeCounts['Unassigned'] = (assigneeCounts['Unassigned'] ?? 0) + 1;
     } else {
-      for (const memberId of card.idMembers) {
-        const member = boardData.members.find((m) => m.id === memberId);
-        const name = member?.fullName ?? memberId;
-        assigneeCounts[name] = (assigneeCounts[name] ?? 0) + 1;
+      for (const assignee of labelAssignees) {
+        assigneeCounts[assignee.name] = (assigneeCounts[assignee.name] ?? 0) + 1;
       }
     }
   }

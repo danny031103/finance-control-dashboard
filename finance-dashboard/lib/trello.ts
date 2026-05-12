@@ -166,12 +166,14 @@ export async function getBoardHistory(): Promise<Record<string, CardAction[]>> {
 
 export async function updateCard(
   cardId: string,
-  changes: Partial<{ idList: string; idMembers: string[] }>
+  changes: Partial<{ idList: string; idMembers: string[]; name: string; desc: string }>
 ): Promise<void> {
   const { key, token } = credentials();
   const body: Record<string, string> = { key, token };
   if (changes.idList) body.idList = changes.idList;
   if (changes.idMembers) body.idMembers = changes.idMembers.join(',');
+  if (changes.name !== undefined) body.name = changes.name;
+  if (changes.desc !== undefined) body.desc = changes.desc;
 
   const res = await fetch(`${TRELLO_BASE}/cards/${cardId}`, {
     method: 'PUT',
