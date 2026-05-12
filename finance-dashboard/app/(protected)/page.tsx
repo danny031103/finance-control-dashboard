@@ -246,7 +246,7 @@ export default function BoardPage() {
                   flexShrink: 0,
                   background: '#ffffff',
                   borderRadius: '8px',
-                  border: '1px solid #e8e8e8',
+                  border: '1px solid #111111',
                   boxShadow: '0 1px 4px rgba(0,0,0,0.04)',
                   display: 'flex',
                   flexDirection: 'column',
