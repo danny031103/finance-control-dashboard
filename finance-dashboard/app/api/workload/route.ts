@@ -40,7 +40,7 @@ export async function GET() {
   // Non-work columns (hidden from board)
   const excludedListIds = new Set(
     boardData.lists
-      .filter((l) => /team.{0,5}schedule|here.{0,5}team|^resources$/i.test(l.name))
+      .filter((l) => /team.{0,10}schedule|here.{0,15}team|^resources$/i.test(l.name))
       .map((l) => l.id)
   );
   const doneListIds = new Set(

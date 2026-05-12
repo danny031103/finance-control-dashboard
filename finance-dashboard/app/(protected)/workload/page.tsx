@@ -1,7 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import type { WorkloadData, MemberWorkload, StuckCard } from '@/app/api/workload/route';
+import type { TrelloList, TrelloMember } from '@/lib/trello';
+import type { EnrichedCard } from '@/app/(protected)/components/KanbanCard';
+import { getLabelAssignees, stalenessColor } from '@/lib/utils';
+import CardSidePanel from '@/app/(protected)/components/CardSidePanel';
 
 // ── Loading / Error states ────────────────────────────────────────────────────
 
@@ -99,9 +103,57 @@ function ColumnBar({
   );
 }
 
+// ── Inline card row ───────────────────────────────────────────────────────────
+
+function CardRow({ card, onClick }: { card: EnrichedCard; onClick: () => void }) {
+  const [hovered, setHovered] = useState(false);
+  const borderColor = stalenessColor(card.daysInColumn);
+  const isOverdue = card.due && !card.dueComplete && new Date(card.due) < new Date();
+
+  return (
+    <div
+      onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: '10px',
+        padding: '8px 10px',
+        borderRadius: '6px',
+        borderTop: `1px solid ${hovered ? '#d8d8d8' : '#eeeeee'}`,
+        borderRight: `1px solid ${hovered ? '#d8d8d8' : '#eeeeee'}`,
+        borderBottom: `1px solid ${hovered ? '#d8d8d8' : '#eeeeee'}`,
+        borderLeft: `3px solid ${borderColor}`,
+        cursor: 'pointer',
+        background: hovered ? '#fafafa' : '#ffffff',
+        transition: 'background 0.1s ease, border-color 0.1s ease',
+      }}
+    >
+      <span style={{ flex: 1, fontSize: '13px', color: '#111111', lineHeight: '1.4', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+        {card.name}
+      </span>
+      <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+        {card.due && (
+          <span style={{
+            fontSize: '11px',
+            color: isOverdue ? '#dc2626' : card.dueComplete ? '#16a34a' : '#888888',
+            background: isOverdue ? '#fef2f2' : card.dueComplete ? '#f0fdf4' : 'transparent',
+            padding: isOverdue || card.dueComplete ? '1px 5px' : '0',
+            borderRadius: '4px',
+          }}>
+            {new Date(card.due).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+          </span>
+        )}
+        <span style={{ fontSize: '11px', color: '#d0d0d0' }}>{card.daysInColumn}d</span>
+      </div>
+    </div>
+  );
+}
+
 // ── Member card ───────────────────────────────────────────────────────────────
 
-function MemberCard({ member }: { member: MemberWorkload }) {
+function MemberCard({ member, cards, onCardClick }: { member: MemberWorkload; cards: EnrichedCard[]; onCardClick: (id: string) => void }) {
   return (
     <div
       style={{
@@ -131,41 +183,69 @@ function MemberCard({ member }: { member: MemberWorkload }) {
       </div>
 
       {/* Column distribution */}
-      <div style={{ marginBottom: '0' }}>
+      <div style={{ marginBottom: cards.length > 0 ? '14px' : '0' }}>
         <p style={{ fontSize: '11px', fontWeight: 500, color: '#999999', margin: '0 0 6px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
           Column distribution
         </p>
         <ColumnBar breakdown={member.columnBreakdown} total={member.totalCards} />
       </div>
+
+      {/* Card list */}
+      {cards.length > 0 && (
+        <div>
+          <p style={{ fontSize: '11px', fontWeight: 500, color: '#999999', margin: '0 0 7px', textTransform: 'uppercase', letterSpacing: '0.06em' }}>
+            Cards
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+            {cards.map((card) => (
+              <CardRow key={card.id} card={card} onClick={() => onCardClick(card.id)} />
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
 
 // ── Stuck card row ────────────────────────────────────────────────────────────
 
-function StuckRow({ card, memberName, memberColor, memberInitials }: { card: StuckCard; memberName: string; memberColor: string; memberInitials: string }) {
+function StuckRow({
+  card,
+  memberName,
+  memberColor,
+  memberInitials,
+  onClick,
+}: {
+  card: StuckCard;
+  memberName: string;
+  memberColor: string;
+  memberInitials: string;
+  onClick: () => void;
+}) {
+  const [hovered, setHovered] = useState(false);
   const stuckColor = card.daysStuck >= 14 ? '#dc2626' : '#ca8a04';
 
   return (
     <div
+      onClick={onClick}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       style={{
         display: 'flex',
         alignItems: 'center',
         gap: '12px',
         padding: '10px 16px',
         borderBottom: '1px solid #f4f4f4',
+        cursor: 'pointer',
+        background: hovered ? '#fafafa' : 'transparent',
+        transition: 'background 0.1s ease',
       }}
     >
       <Avatar initials={memberInitials} color={memberColor} />
       <div style={{ flex: 1, minWidth: 0 }}>
-        <a
-          href={card.shortUrl}
-          target="_blank"
-          rel="noreferrer"
-          style={{ fontSize: '13px', fontWeight: 500, color: '#111111', textDecoration: 'none', display: 'block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}
-        >
+        <p style={{ fontSize: '13px', fontWeight: 500, color: '#111111', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
           {card.name}
-        </a>
+        </p>
         <p style={{ fontSize: '12px', color: '#999999', margin: '1px 0 0' }}>
           {memberName} &middot; {card.columnName}
         </p>
@@ -189,47 +269,53 @@ function StuckRow({ card, memberName, memberColor, memberInitials }: { card: Stu
 
 // ── Main page ─────────────────────────────────────────────────────────────────
 
+type BoardData = {
+  lists: TrelloList[];
+  cards: EnrichedCard[];
+  members: TrelloMember[];
+};
+
 export default function WorkloadPage() {
   const [data, setData] = useState<WorkloadData | null>(null);
+  const [boardData, setBoardData] = useState<BoardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [selectedCardId, setSelectedCardId] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch('/api/workload')
-      .then((r) => {
-        if (!r.ok) throw new Error('Failed');
-        return r.json() as Promise<WorkloadData>;
-      })
-      .then(setData)
+    Promise.all([
+      fetch('/api/workload').then((r) => { if (!r.ok) throw new Error(); return r.json() as Promise<WorkloadData>; }),
+      fetch('/api/board').then((r) => { if (!r.ok) throw new Error(); return r.json() as Promise<BoardData>; }),
+    ])
+      .then(([workload, board]) => { setData(workload); setBoardData(board); })
       .catch(() => setError(true))
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <CenteredMessage>Loading workload data…</CenteredMessage>;
-  if (error || !data) return <CenteredMessage color="#dc2626">Failed to load workload data.</CenteredMessage>;
+  const handleCardUpdate = useCallback((cardId: string, changes: Partial<EnrichedCard>) => {
+    setBoardData((prev) =>
+      prev ? { ...prev, cards: prev.cards.map((c) => (c.id === cardId ? { ...c, ...changes } : c)) } : prev
+    );
+  }, []);
 
-  // Collect all stuck cards across all members (deduplicated by card id, keeping shortest-days entry per person)
+  if (loading) return <CenteredMessage>Loading workload data…</CenteredMessage>;
+  if (error || !data || !boardData) return <CenteredMessage color="#dc2626">Failed to load workload data.</CenteredMessage>;
+
+  // Build a fast card lookup
+  const cardMap = new Map(boardData.cards.map((c) => [c.id, c]));
+
+  // Collect all stuck card rows
   const allStuckRows: { card: StuckCard; memberName: string; memberColor: string; memberInitials: string }[] = [];
 
   for (const member of data.members) {
     for (const card of member.stuckCards) {
-      allStuckRows.push({
-        card,
-        memberName: member.name,
-        memberColor: member.color,
-        memberInitials: member.initials,
-      });
+      allStuckRows.push({ card, memberName: member.name, memberColor: member.color, memberInitials: member.initials });
     }
   }
 
   if (data.unassigned.stuckCount > 0) {
     for (const card of data.unassigned.stuckCards) {
-      allStuckRows.push({
-        card,
-        memberName: 'Unassigned',
-        memberColor: '#aaaaaa',
-        memberInitials: '—',
-      });
+      allStuckRows.push({ card, memberName: 'Unassigned', memberColor: '#aaaaaa', memberInitials: '—' });
     }
   }
 
@@ -237,6 +323,23 @@ export default function WorkloadPage() {
 
   const totalActive = data.members.reduce((s, m) => s + m.totalCards, 0) + data.unassigned.totalCards;
   const totalStuck = allStuckRows.length;
+
+  // Map member name → their full EnrichedCards (excluding done/schedule lists)
+  const HIDDEN_LIST_RE = /here.{0,15}team|team.{0,10}schedule|resources/i;
+  const DONE_RE = /done|completed|closed/i;
+  const hiddenListIds = new Set(boardData.lists.filter((l) => HIDDEN_LIST_RE.test(l.name) || DONE_RE.test(l.name)).map((l) => l.id));
+
+  const memberCardsMap = new Map<string, EnrichedCard[]>();
+  for (const card of boardData.cards) {
+    if (hiddenListIds.has(card.idList)) continue;
+    for (const assignee of getLabelAssignees(card.labels)) {
+      const existing = memberCardsMap.get(assignee.name) ?? [];
+      existing.push(card);
+      memberCardsMap.set(assignee.name, existing);
+    }
+  }
+
+  const selectedCard = selectedCardId ? (cardMap.get(selectedCardId) ?? null) : null;
 
   return (
     <div style={{ padding: '28px 32px 48px' }}>
@@ -271,7 +374,12 @@ export default function WorkloadPage() {
             }}
           >
             {data.members.map((member) => (
-              <MemberCard key={member.id} member={member} />
+              <MemberCard
+                key={member.id}
+                member={member}
+                cards={memberCardsMap.get(member.name) ?? []}
+                onCardClick={setSelectedCardId}
+              />
             ))}
 
             {/* Unassigned bucket — only show if non-zero */}
@@ -381,12 +489,24 @@ export default function WorkloadPage() {
                 memberName={memberName}
                 memberColor={memberColor}
                 memberInitials={memberInitials}
+                onClick={() => setSelectedCardId(card.id)}
               />
             ))}
           </div>
         )}
       </div>
 
+      {/* Card side panel */}
+      {selectedCard && (
+        <CardSidePanel
+          key={selectedCard.id}
+          card={selectedCard}
+          members={boardData.members}
+          lists={boardData.lists}
+          onClose={() => setSelectedCardId(null)}
+          onCardUpdate={handleCardUpdate}
+        />
+      )}
     </div>
   );
 }
