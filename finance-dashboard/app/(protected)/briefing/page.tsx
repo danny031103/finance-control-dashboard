@@ -324,7 +324,7 @@ export default function BriefingPage() {
             <SparkleIcon />
           </div>
           <div>
-            <h2 style={{ fontSize: '20px', fontWeight: 600, color: '#111111', margin: '0 0 8px 0', letterSpacing: '-0.01em' }}>
+            <h2 style={{ fontSize: '22px', fontWeight: 500, color: '#111111', margin: '0 0 8px 0', letterSpacing: '0', fontFamily: 'var(--font-playfair)' }}>
               Monday Briefing
             </h2>
             <p style={{ fontSize: '13px', color: '#888888', lineHeight: '1.65', margin: 0 }}>
@@ -385,7 +385,7 @@ export default function BriefingPage() {
       <div style={{ padding: '28px 32px 40px', maxWidth: '780px' }}>
         {/* Header */}
         <div style={{ marginBottom: '20px', paddingBottom: '16px', borderBottom: '1px solid #e8e8e8' }}>
-          <h1 style={{ fontSize: '20px', fontWeight: 600, color: '#111111', margin: '0 0 14px 0', letterSpacing: '-0.01em' }}>
+          <h1 style={{ fontSize: '22px', fontWeight: 500, color: '#111111', margin: '0 0 14px 0', letterSpacing: '0', fontFamily: 'var(--font-playfair)' }}>
             Monday Briefing
           </h1>
           <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>

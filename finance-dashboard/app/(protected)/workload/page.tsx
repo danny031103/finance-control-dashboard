@@ -346,7 +346,7 @@ export default function WorkloadPage() {
 
       {/* Page header */}
       <div style={{ marginBottom: '28px', paddingBottom: '16px', borderBottom: '1px solid #e8e8e8' }}>
-        <h1 style={{ fontSize: '20px', fontWeight: 600, color: '#111111', margin: '0 0 4px', letterSpacing: '-0.01em' }}>
+        <h1 style={{ fontSize: '22px', fontWeight: 500, color: '#111111', margin: '0 0 4px', letterSpacing: '0', fontFamily: 'var(--font-playfair)' }}>
           Workload
         </h1>
         <p style={{ fontSize: '13px', color: '#666666', margin: 0 }}>

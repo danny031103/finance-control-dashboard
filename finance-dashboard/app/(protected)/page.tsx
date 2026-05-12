@@ -164,7 +164,7 @@ export default function BoardPage() {
       >
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', paddingBottom: '14px', borderBottom: '1px solid #e8e8e8' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <h1 style={{ fontSize: '20px', fontWeight: 600, color: '#111111', margin: 0, letterSpacing: '-0.01em' }}>
+            <h1 style={{ fontSize: '22px', fontWeight: 500, color: '#111111', margin: 0, letterSpacing: '0', fontFamily: 'var(--font-playfair)' }}>
               Board
             </h1>
             {/* Live indicator */}

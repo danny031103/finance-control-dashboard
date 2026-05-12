@@ -48,7 +48,7 @@ export default function ProtectedLayout({
             </svg>
           </div>
           <div>
-            <p style={{ fontSize: '13px', fontWeight: 700, color: '#ffffff', lineHeight: '1.25', margin: 0, fontFamily: 'var(--font-space-grotesk)', letterSpacing: '-0.01em' }}>
+            <p style={{ fontSize: '14px', fontWeight: 500, color: '#ffffff', lineHeight: '1.25', margin: 0, fontFamily: 'var(--font-playfair)', letterSpacing: '0' }}>
               Finance
             </p>
             <p style={{ fontSize: '11px', color: '#555555', lineHeight: '1.25', margin: 0 }}>

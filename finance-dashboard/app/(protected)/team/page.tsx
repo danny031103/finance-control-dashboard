@@ -373,11 +373,12 @@ export default function TeamPage() {
           <div>
             <h1
               style={{
-                fontSize: '18px',
-                fontWeight: 600,
+                fontSize: '22px',
+                fontWeight: 500,
                 color: '#111111',
                 margin: '0 0 3px',
-                letterSpacing: '-0.01em',
+                letterSpacing: '0',
+                fontFamily: 'var(--font-playfair)',
               }}
             >
               Team

@@ -41,7 +41,7 @@ function ChatEmptyState({ onSelect }: { onSelect: (q: string) => void }) {
         </svg>
       </div>
       <div style={{ textAlign: 'center' }}>
-        <h2 style={{ fontSize: '18px', fontWeight: 600, color: '#111111', margin: '0 0 6px 0', letterSpacing: '-0.01em' }}>
+        <h2 style={{ fontSize: '20px', fontWeight: 500, color: '#111111', margin: '0 0 6px 0', letterSpacing: '0', fontFamily: 'var(--font-playfair)' }}>
           Ask about your board
         </h2>
         <p style={{ fontSize: '13px', color: '#888888', margin: 0, lineHeight: '1.6' }}>
@@ -158,7 +158,7 @@ export default function ChatPage() {
         }}
       >
         {messages.length > 0 && (
-          <h1 style={{ fontSize: '20px', fontWeight: 600, color: '#111111', margin: 0, letterSpacing: '-0.01em' }}>
+          <h1 style={{ fontSize: '22px', fontWeight: 500, color: '#111111', margin: 0, letterSpacing: '0', fontFamily: 'var(--font-playfair)' }}>
             Chat
           </h1>
         )}

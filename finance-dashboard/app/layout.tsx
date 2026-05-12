@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Geist, Space_Grotesk } from "next/font/google";
+import { Geist, Space_Grotesk, Playfair_Display } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -13,6 +13,12 @@ const spaceGrotesk = Space_Grotesk({
   weight: ["600", "700"],
 });
 
+const playfairDisplay = Playfair_Display({
+  variable: "--font-playfair",
+  subsets: ["latin"],
+  weight: ["400", "500", "600"],
+});
+
 export const metadata: Metadata = {
   title: "Finance Dashboard",
   description: "Internal finance & control dashboard",
@@ -24,7 +30,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${geistSans.variable} ${spaceGrotesk.variable} h-full antialiased`}>
+    <html lang="en" className={`${geistSans.variable} ${spaceGrotesk.variable} ${playfairDisplay.variable} h-full antialiased`}>
       <body className="min-h-full">{children}</body>
     </html>
   );
