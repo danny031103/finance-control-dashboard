@@ -71,22 +71,21 @@ function ChartCard({ title, children, fullWidth = false }: { title: string; chil
     >
       <div
         style={{
-          padding: '14px 20px 12px',
-          borderBottom: '2px solid #f0f0f0',
+          padding: '12px 16px 10px',
+          borderBottom: '1px solid #f0f0f0',
           display: 'flex',
           alignItems: 'center',
           gap: '8px',
         }}
       >
-        <div style={{ width: '3px', height: '16px', borderRadius: '2px', background: '#2563eb', flexShrink: 0 }} />
         <p
           style={{
-            fontSize: '13px',
-            fontWeight: 700,
-            color: '#111111',
+            fontSize: '12px',
+            fontWeight: 500,
+            color: '#888888',
             margin: 0,
-            fontFamily: 'var(--font-space-grotesk)',
-            letterSpacing: '-0.01em',
+            textTransform: 'uppercase',
+            letterSpacing: '0.06em',
           }}
         >
           {title}
@@ -136,10 +135,10 @@ export default function AnalyticsPage() {
   const ageColors = ['#059669', '#0891b2', '#d97706', '#dc2626', '#7c3aed'];
 
   return (
-    <div style={{ padding: '28px 32px 40px', maxWidth: '960px' }}>
+    <div style={{ padding: '28px 32px 40px' }}>
       {/* Header */}
-      <div style={{ marginBottom: '28px', paddingBottom: '20px', borderBottom: '2px solid #111111' }}>
-        <h1 style={{ fontSize: '26px', fontWeight: 700, color: '#111111', margin: '0 0 4px 0', fontFamily: 'var(--font-space-grotesk)', letterSpacing: '-0.02em' }}>
+      <div style={{ marginBottom: '28px', paddingBottom: '16px', borderBottom: '1px solid #e8e8e8' }}>
+        <h1 style={{ fontSize: '20px', fontWeight: 600, color: '#111111', margin: '0 0 4px 0', letterSpacing: '-0.01em' }}>
           Analytics
         </h1>
         {data.weekCount < 8 && (

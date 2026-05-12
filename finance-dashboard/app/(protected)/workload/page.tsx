@@ -239,11 +239,11 @@ export default function WorkloadPage() {
   const totalStuck = allStuckRows.length;
 
   return (
-    <div style={{ padding: '28px 32px 48px', maxWidth: '960px' }}>
+    <div style={{ padding: '28px 32px 48px' }}>
 
       {/* Page header */}
-      <div style={{ marginBottom: '28px', paddingBottom: '20px', borderBottom: '1px solid #e5e5e5' }}>
-        <h1 style={{ fontSize: '18px', fontWeight: 600, color: '#111111', margin: '0 0 4px' }}>
+      <div style={{ marginBottom: '28px', paddingBottom: '16px', borderBottom: '1px solid #e8e8e8' }}>
+        <h1 style={{ fontSize: '20px', fontWeight: 600, color: '#111111', margin: '0 0 4px', letterSpacing: '-0.01em' }}>
           Workload
         </h1>
         <p style={{ fontSize: '13px', color: '#666666', margin: 0 }}>

@@ -162,9 +162,9 @@ export default function BoardPage() {
           flexShrink: 0,
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', paddingBottom: '16px', borderBottom: '2px solid #111111' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '20px', paddingBottom: '14px', borderBottom: '1px solid #e8e8e8' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <h1 style={{ fontSize: '26px', fontWeight: 700, color: '#111111', margin: 0, fontFamily: 'var(--font-space-grotesk)', letterSpacing: '-0.02em' }}>
+            <h1 style={{ fontSize: '20px', fontWeight: 600, color: '#111111', margin: 0, letterSpacing: '-0.01em' }}>
               Board
             </h1>
             {/* Live indicator */}

@@ -51,7 +51,7 @@ export default function ProtectedLayout({
             <p style={{ fontSize: '13px', fontWeight: 700, color: '#ffffff', lineHeight: '1.25', margin: 0, fontFamily: 'var(--font-space-grotesk)', letterSpacing: '-0.01em' }}>
               Finance
             </p>
-            <p style={{ fontSize: '11px', color: '#3d3d3d', lineHeight: '1.25', margin: 0 }}>
+            <p style={{ fontSize: '11px', color: '#555555', lineHeight: '1.25', margin: 0 }}>
               PepsiCo · IT
             </p>
           </div>
