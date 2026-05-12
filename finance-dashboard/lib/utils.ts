@@ -1,4 +1,13 @@
-const MEMBER_COLORS = ['#6366f1', '#0891b2', '#059669', '#d97706', '#dc2626'];
+// One distinct, sleek color per person — index-matched to PERSON_LABEL_PATTERNS order.
+// Add a new entry here whenever a person is added below.
+const MEMBER_COLORS = [
+  '#1d3557', // Navy        — Dany
+  '#7b2d3b', // Burgundy    — Bill
+  '#2a4a38', // Forest      — Liss
+  '#5c3d6b', // Plum        — Yagnesh
+  '#3d5a6b', // Slate blue  — Manoel
+  '#6b4e2a', // Walnut      — Anubov
+];
 
 // Trello labels used for person assignment instead of the Trello member feature.
 // Add or rename entries here if label names change.
@@ -42,6 +51,10 @@ export function getLabelAssignees(
 export const PERSON_NAMES = PERSON_LABEL_PATTERNS.map((p) => p.name);
 
 export function getMemberColor(name: string): string {
+  if (name.trim().toLowerCase() === 'unassigned') return '#a0a0a0';
+  const idx = PERSON_LABEL_PATTERNS.findIndex(({ pattern }) => pattern.test(name.trim()));
+  if (idx !== -1) return MEMBER_COLORS[idx];
+  // Fallback for unknown names: stable hash into the palette
   let hash = 0;
   for (let i = 0; i < name.length; i++) {
     hash = (hash << 5) - hash + name.charCodeAt(i);

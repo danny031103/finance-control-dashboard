@@ -132,7 +132,7 @@ export default function AnalyticsPage() {
 
   const axisStyle = { fill: '#bbbbbb', fontSize: 11 };
 
-  const ageColors = ['#059669', '#0891b2', '#d97706', '#dc2626', '#7c3aed'];
+  const ageColors = ['#2a4a38', '#3d5a6b', '#6b4e2a', '#7b2d3b', '#5c3d6b'];
 
   return (
     <div style={{ padding: '28px 32px 40px' }}>
@@ -159,7 +159,7 @@ export default function AnalyticsPage() {
               <XAxis dataKey="week" tick={axisStyle} axisLine={false} tickLine={false} />
               <YAxis tick={axisStyle} axisLine={false} tickLine={false} allowDecimals={false} />
               <Tooltip content={<CustomTooltip />} cursor={{ fill: '#f8f8f8' }} />
-              <Bar dataKey="count" name="Cards" fill="#2563eb" radius={[3, 3, 0, 0]} />
+              <Bar dataKey="count" name="Cards" fill="#1d3557" radius={[3, 3, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
@@ -242,7 +242,7 @@ export default function AnalyticsPage() {
                 width={130}
               />
               <Tooltip content={<CustomTooltip />} cursor={{ fill: '#f8f8f8' }} />
-              <Bar dataKey="avgDays" name="Avg Days" fill="#2563eb" radius={[0, 3, 3, 0]} />
+              <Bar dataKey="avgDays" name="Avg Days" fill="#1d3557" radius={[0, 3, 3, 0]} />
             </BarChart>
           </ResponsiveContainer>
         </ChartCard>
